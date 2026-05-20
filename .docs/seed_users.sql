@@ -1,27 +1,48 @@
 -- =============================================================================
--- SAS Trace — SQL para crear USUARIOS DUMMY directamente en Supabase
+-- SAS Trace — SQL para crear USUARIOS DUMMY en Supabase
 -- Ejecutar en: Supabase Dashboard → SQL Editor
--- Orden de ejecución: PRIMERO este archivo, LUEGO seed_data.sql
+-- ORDEN: 1) schema.sql → 2) seed_users.sql → 3) seed_data.sql
 -- =============================================================================
 --
--- ESTE SCRIPT:
---   1. Crea los 2 usuarios en auth.users con contraseña cifrada
---   2. Crea sus profiles con rol correcto
---   3. Actualiza las órdenes de trabajo para asignar created_by
+-- FIX CRÍTICO incluido:
+--   - auth.users con bcrypt cost=10 (igual que usa Supabase internamente)
+--   - auth.identities → SIN ESTO EL LOGIN FALLA AUNQUE LA CONTRASEÑA SEA CORRECTA
 --
 -- IDs fijos de usuarios:
 --   Admin:    a0000000-0000-0000-0000-000000000001
 --   Operador: a0000000-0000-0000-0000-000000000002
 -- =============================================================================
 
--- Habilitar pgcrypto para cifrado de contraseñas
+-- Extensión necesaria para bcrypt
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- =============================================================================
--- 1. CREAR USUARIOS EN auth.users
+-- PASO 0: Limpiar si ya existen (para poder re-ejecutar limpio)
+-- =============================================================================
+DELETE FROM auth.identities
+  WHERE user_id IN (
+    'a0000000-0000-0000-0000-000000000001',
+    'a0000000-0000-0000-0000-000000000002'
+  );
+
+DELETE FROM auth.users
+  WHERE id IN (
+    'a0000000-0000-0000-0000-000000000001',
+    'a0000000-0000-0000-0000-000000000002'
+  )
+  OR email IN ('admin@sastrace.com', 'operador@sastrace.com');
+
+DELETE FROM profiles
+  WHERE id IN (
+    'a0000000-0000-0000-0000-000000000001',
+    'a0000000-0000-0000-0000-000000000002'
+  );
+
+-- =============================================================================
+-- PASO 1: Crear usuarios en auth.users
+-- CLAVE: gen_salt('bf', 10) — cost factor 10, igual que Supabase Auth
 -- =============================================================================
 
--- Usuario admin
 INSERT INTO auth.users (
   id,
   instance_id,
@@ -38,62 +59,89 @@ INSERT INTO auth.users (
   confirmation_token,
   email_change_token_new,
   recovery_token
-) VALUES (
+) VALUES
+-- Admin
+(
   'a0000000-0000-0000-0000-000000000001',
   '00000000-0000-0000-0000-000000000000',
   'admin@sastrace.com',
-  crypt('SasTrace2026!', gen_salt('bf')),
+  crypt('SasTrace2026!', gen_salt('bf', 10)),
   now(),
-  '{"full_name": "Andrés Rodríguez", "role": "admin"}',
+  '{"full_name": "Andrés Rodríguez"}',
   '{"provider": "email", "providers": ["email"]}',
   false,
   'authenticated',
   'authenticated',
   now(),
   now(),
-  '',
-  '',
-  ''
-) ON CONFLICT (id) DO NOTHING;
-
--- Usuario operador
-INSERT INTO auth.users (
-  id,
-  instance_id,
-  email,
-  encrypted_password,
-  email_confirmed_at,
-  raw_user_meta_data,
-  raw_app_meta_data,
-  is_super_admin,
-  role,
-  aud,
-  created_at,
-  updated_at,
-  confirmation_token,
-  email_change_token_new,
-  recovery_token
-) VALUES (
+  '', '', ''
+),
+-- Operador
+(
   'a0000000-0000-0000-0000-000000000002',
   '00000000-0000-0000-0000-000000000000',
   'operador@sastrace.com',
-  crypt('SasTrace2026!', gen_salt('bf')),
+  crypt('SasTrace2026!', gen_salt('bf', 10)),
   now(),
-  '{"full_name": "Leo Martínez", "role": "operator"}',
+  '{"full_name": "Leo Martínez"}',
   '{"provider": "email", "providers": ["email"]}',
   false,
   'authenticated',
   'authenticated',
   now(),
   now(),
-  '',
-  '',
-  ''
-) ON CONFLICT (id) DO NOTHING;
+  '', '', ''
+);
 
 -- =============================================================================
--- 2. CREAR PROFILES (el trigger on_auth_user_created debería haberlos creado,
---    pero los insertamos manualmente con upsert por si el trigger falló)
+-- PASO 2: Crear identities — SIN ESTE INSERT EL LOGIN NUNCA FUNCIONA
+-- Supabase Auth valida la contraseña a través de auth.identities, no solo auth.users
+-- =============================================================================
+
+INSERT INTO auth.identities (
+  id,
+  user_id,
+  identity_data,
+  provider,
+  provider_id,
+  last_sign_in_at,
+  created_at,
+  updated_at
+) VALUES
+-- Admin identity
+(
+  gen_random_uuid(),
+  'a0000000-0000-0000-0000-000000000001',
+  jsonb_build_object(
+    'sub', 'a0000000-0000-0000-0000-000000000001',
+    'email', 'admin@sastrace.com',
+    'email_verified', true
+  ),
+  'email',
+  'admin@sastrace.com',
+  now(),
+  now(),
+  now()
+),
+-- Operador identity
+(
+  gen_random_uuid(),
+  'a0000000-0000-0000-0000-000000000002',
+  jsonb_build_object(
+    'sub', 'a0000000-0000-0000-0000-000000000002',
+    'email', 'operador@sastrace.com',
+    'email_verified', true
+  ),
+  'email',
+  'operador@sastrace.com',
+  now(),
+  now(),
+  now()
+);
+
+-- =============================================================================
+-- PASO 3: Crear profiles con roles correctos
+-- (el trigger on_auth_user_created puede haberlos creado, hacemos upsert)
 -- =============================================================================
 
 INSERT INTO profiles (id, full_name, email, role) VALUES
@@ -101,61 +149,25 @@ INSERT INTO profiles (id, full_name, email, role) VALUES
   ('a0000000-0000-0000-0000-000000000002', 'Leo Martínez', 'operador@sastrace.com', 'operator')
 ON CONFLICT (id) DO UPDATE SET
   full_name = EXCLUDED.full_name,
-  role = EXCLUDED.role;
+  email     = EXCLUDED.email,
+  role      = EXCLUDED.role;
 
 -- =============================================================================
--- 3. ACTUALIZAR ÓRDENES para asignar created_by a los usuarios reales
---    (las primeras órdenes las creó el admin, las últimas el operador)
+-- PASO 4: Verificación — ejecutar estas queries para confirmar
 -- =============================================================================
 
-UPDATE work_orders SET
-  created_by = 'a0000000-0000-0000-0000-000000000001'  -- admin
-WHERE id IN (
-  'bb100000-0000-0000-0000-000000000001',
-  'bb100000-0000-0000-0000-000000000002',
-  'bb100000-0000-0000-0000-000000000003',
-  'bb100000-0000-0000-0000-000000000004',
-  'bb100000-0000-0000-0000-000000000005',
-  'bb100000-0000-0000-0000-000000000006',
-  'bb100000-0000-0000-0000-000000000007',
-  'bb100000-0000-0000-0000-000000000008'
-);
+-- ¿Usuarios creados?
+SELECT
+  u.id,
+  u.email,
+  u.email_confirmed_at IS NOT NULL AS email_confirmed,
+  i.provider,
+  p.full_name,
+  p.role
+FROM auth.users u
+LEFT JOIN auth.identities i ON i.user_id = u.id
+LEFT JOIN profiles p ON p.id = u.id
+WHERE u.email IN ('admin@sastrace.com', 'operador@sastrace.com');
 
-UPDATE work_orders SET
-  created_by = 'a0000000-0000-0000-0000-000000000002'  -- operador
-WHERE id IN (
-  'bb100000-0000-0000-0000-000000000009',
-  'bb100000-0000-0000-0000-000000000010',
-  'bb100000-0000-0000-0000-000000000011',
-  'bb100000-0000-0000-0000-000000000012',
-  'bb100000-0000-0000-0000-000000000013'
-);
-
--- =============================================================================
--- 4. ASIGNAR changed_by en el historial de estados
--- =============================================================================
-
-UPDATE work_order_status_history SET
-  changed_by = 'a0000000-0000-0000-0000-000000000001'
-WHERE changed_by IS NULL
-  AND work_order_id IN (
-    'bb100000-0000-0000-0000-000000000001',
-    'bb100000-0000-0000-0000-000000000002',
-    'bb100000-0000-0000-0000-000000000004'
-  );
-
--- =============================================================================
--- 5. VERIFICACIÓN — Ejecutar después para confirmar que todo está OK
--- =============================================================================
-
--- Verificar usuarios creados:
--- SELECT id, email, email_confirmed_at FROM auth.users WHERE email LIKE '%sastrace%';
-
--- Verificar profiles:
--- SELECT id, full_name, email, role FROM profiles;
-
--- Verificar órdenes con usuario asignado:
--- SELECT order_number, created_by FROM work_orders ORDER BY order_number;
-
--- Para testear login (debería devolver el usuario si la contraseña es correcta):
--- SELECT id, email FROM auth.users WHERE email = 'admin@sastrace.com';
+-- Resultado esperado: 2 filas con email_confirmed = true, provider = email,
+-- full_name y role completados
