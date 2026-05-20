@@ -1,10 +1,11 @@
-// middleware.ts — src/middleware.ts — 2026-05-19
-// Next.js middleware para protección de rutas y refresco de sesión Supabase
+// proxy.ts — src/proxy.ts — 2026-05-20
+// Next.js 16 proxy (ex-middleware) para protección de rutas y refresco de sesión Supabase
+// NOTA: En Next.js 16 el archivo se llama proxy.ts y la función exportada "proxy"
 
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -32,8 +33,11 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAuthPage = request.nextUrl.pathname.startsWith("/login");
-  const isPublicPath = isAuthPage;
+  const pathname = request.nextUrl.pathname;
+  const isPublicPath =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/terminos") ||
+    pathname.startsWith("/auth");
 
   if (!user && !isPublicPath) {
     const url = request.nextUrl.clone();
@@ -41,7 +45,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && isAuthPage) {
+  if (user && pathname.startsWith("/login")) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
