@@ -94,13 +94,13 @@ export default async function DashboardPage() {
       {/* Fila 1: Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="sas-card p-5">
+          <div key={stat.label} className="sas-card p-5 group transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_-8px_rgba(15,23,42,0.14),0_2px_8px_rgba(15,23,42,0.06)] hover:border-slate-200">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-(--sas-text-muted) font-medium">{stat.label}</p>
                 <p className="text-3xl font-bold text-(--sas-text) mt-1">{stat.value}</p>
               </div>
-              <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", stat.bg)}>
+              <div className={cn("w-10 h-10 rounded-[11px] flex items-center justify-center transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3", stat.bg)}>
                 <stat.icon className={cn("w-5 h-5", stat.color)} />
               </div>
             </div>
@@ -126,7 +126,7 @@ export default async function DashboardPage() {
               </thead>
               <tbody className="divide-y divide-(--sas-border)">
                 {recentOrders?.map((order) => (
-                  <tr key={order.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={order.id} className="hover:bg-slate-50/80 transition-colors duration-100 cursor-pointer">
                     <td className="px-5 py-3">
                       <Link href={`/ordenes/${order.id}`} className="font-mono text-sm font-medium text-sas-blue hover:underline">{order.order_number}</Link>
                     </td>
@@ -174,7 +174,7 @@ export default async function DashboardPage() {
             {upcomingDue?.map((order) => {
               const overdue = isOverdue(order.date_due);
               return (
-                <div key={order.id} className="flex items-center gap-3 px-5 py-3.5">
+                <div key={order.id} className="flex items-center gap-3 px-5 py-3.5 transition-colors duration-100 hover:bg-slate-50/80">
                   {overdue && <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />}
                   <div className="flex-1 min-w-0">
                     <Link href={`/ordenes/${order.id}`} className="text-sm font-medium text-sas-blue hover:underline font-mono">{order.order_number}</Link>
@@ -199,7 +199,7 @@ export default async function DashboardPage() {
           </div>
           <div className="divide-y divide-(--sas-border)">
             {recentActivity?.map((log) => (
-              <div key={log.id} className="px-5 py-3.5">
+              <div key={log.id} className="px-5 py-3.5 transition-colors duration-100 hover:bg-slate-50/80">
                 <p className="text-sm text-(--sas-text) truncate">{log.description ?? log.action}</p>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-xs text-(--sas-text-muted)">{log.user_name ?? "Sistema"}</span>

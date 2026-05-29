@@ -371,12 +371,12 @@ export function OrdersTable({ initialOrders, clients }: OrdersTableProps) {
           </div>
         </div>
         {/* Estado multiselect */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-(--sas-text-muted)">Estado:</span>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-xs text-(--sas-text-muted) mr-0.5">Estado:</span>
           <button
             type="button"
             onClick={() => setStatusFilter([])}
-            className={cn("text-xs px-2.5 py-1 rounded-full border transition-colors", statusFilter.length === 0 ? "bg-sas-navy text-white border-sas-navy" : "bg-white text-(--sas-text-muted) border-(--sas-border) hover:border-sas-navy-mid")}
+            className={cn("text-xs px-3 py-1 rounded-full border font-medium transition-colors duration-140", statusFilter.length === 0 ? "bg-sas-navy text-white border-sas-navy" : "bg-white text-(--sas-text-muted) border-(--sas-border) hover:border-sas-navy-mid hover:text-(--sas-text)")}
           >
             Todos
           </button>
@@ -385,7 +385,7 @@ export function OrdersTable({ initialOrders, clients }: OrdersTableProps) {
               key={s}
               type="button"
               onClick={() => setStatusFilter((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s])}
-              className={cn("text-xs px-2.5 py-1 rounded-full border transition-colors", statusFilter.includes(s) ? "bg-sas-navy-mid text-white border-sas-navy-mid" : "bg-white text-(--sas-text-muted) border-(--sas-border) hover:border-sas-navy-mid")}
+              className={cn("text-xs px-3 py-1 rounded-full border font-medium transition-colors duration-140", statusFilter.includes(s) ? "bg-sas-navy-mid text-white border-sas-navy-mid" : "bg-white text-(--sas-text-muted) border-(--sas-border) hover:border-sas-navy-mid hover:text-(--sas-text)")}
             >
               {ORDER_STATUS_LABELS[s]}
             </button>
@@ -416,7 +416,7 @@ export function OrdersTable({ initialOrders, clients }: OrdersTableProps) {
                 key={row.id}
                 onClick={() => router.push(`/ordenes/${row.original.id}`)}
                 className={cn(
-                  "cursor-pointer hover:bg-blue-50/40 transition-colors",
+                  "cursor-pointer hover:bg-blue-50/50 transition-colors duration-100",
                   row.original.status === "cancelada" && "opacity-50",
                   row.original.order_type === "OTS" ? "border-l-2 border-l-orange-200" : "border-l-2 border-l-blue-200"
                 )}

@@ -95,10 +95,10 @@ export function ClientsTable({ initialClients }: ClientsTableProps) {
         header: "Estado",
         cell: ({ getValue }) => (
           <span
-            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
               getValue()
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
+                ? "bg-green-50 text-green-700 border-green-200"
+                : "bg-red-50 text-red-700 border-red-200"
             }`}
           >
             {getValue() ? "Activo" : "Inactivo"}
@@ -203,7 +203,7 @@ export function ClientsTable({ initialClients }: ClientsTableProps) {
             </thead>
             <tbody className="divide-y divide-(--sas-border)">
               {table.getRowModel().rows.map((row) => (
-                <tr key={row.id} className="hover:bg-slate-50 transition-colors">
+                <tr key={row.id} className="hover:bg-slate-50/80 transition-colors duration-100">
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-4 py-3 text-(--sas-text)">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

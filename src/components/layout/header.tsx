@@ -28,7 +28,7 @@ export function Header() {
   });
 
   return (
-    <header className="h-14 bg-white border-b border-(--sas-border) px-6 flex items-center">
+    <header className="h-15 shrink-0 sticky top-0 z-20 bg-white/90 backdrop-blur-sm backdrop-saturate-150 border-b border-(--sas-border) px-6 flex items-center">
       <nav className="flex items-center gap-1 text-sm" aria-label="Breadcrumb">
         <Link
           href="/"

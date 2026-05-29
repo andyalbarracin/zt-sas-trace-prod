@@ -85,7 +85,7 @@ export function Sidebar({ profile }: SidebarProps) {
       {/* Toggle collapse */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-16 w-6 h-6 bg-sas-navy-mid border border-sas-blue rounded-full flex items-center justify-center text-white hover:bg-sas-blue transition-colors z-10"
+        className="absolute -right-2.75 top-17.5 w-5.5 h-5.5 bg-white border border-(--sas-border) rounded-[7px] flex items-center justify-center text-(--sas-text-muted) hover:text-sas-blue shadow-sm transition-colors duration-150 z-10"
         aria-label={collapsed ? "Expandir sidebar" : "Colapsar sidebar"}
       >
         {collapsed ? (
@@ -105,10 +105,10 @@ export function Sidebar({ profile }: SidebarProps) {
               <Link
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-150",
+                  "relative flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors duration-140",
                   isActive(item.href)
-                    ? "bg-sas-navy-mid border-l-2 border-sas-blue text-white"
-                    : "text-white/70 hover:text-white hover:bg-sas-navy-mid/60",
+                    ? "bg-linear-to-r from-sas-blue/30 to-sas-blue/15 text-white before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-0.5 before:rounded-r-[3px] before:bg-sas-light"
+                    : "text-white/70 hover:text-white hover:bg-white/6",
                   collapsed && "justify-center px-2"
                 )}
                 title={collapsed ? item.label : undefined}
@@ -122,14 +122,14 @@ export function Sidebar({ profile }: SidebarProps) {
       </nav>
 
       {/* Ayuda — separado del nav principal */}
-      <div className="px-2 py-2 border-t border-sas-navy-mid/50">
+      <div className="px-2 py-2 border-t border-white/[0.07]">
         <Link
           href="/ayuda"
           className={cn(
-            "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-150",
+            "relative flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors duration-140",
             isActive("/ayuda")
-              ? "bg-sas-navy-mid border-l-2 border-sas-blue text-white"
-              : "text-white/70 hover:text-white hover:bg-sas-navy-mid/60",
+              ? "bg-linear-to-r from-sas-blue/30 to-sas-blue/15 text-white before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-0.5 before:rounded-r-[3px] before:bg-sas-light"
+              : "text-white/70 hover:text-white hover:bg-white/6",
             collapsed && "justify-center px-2"
           )}
           title={collapsed ? "Ayuda" : undefined}
@@ -140,7 +140,7 @@ export function Sidebar({ profile }: SidebarProps) {
       </div>
 
       {/* User footer */}
-      <div className="border-t border-sas-navy-mid p-3">
+      <div className="border-t border-white/[0.07] p-3">
         {!collapsed ? (
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-sas-blue flex items-center justify-center text-xs font-bold shrink-0">
