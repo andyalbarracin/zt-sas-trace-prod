@@ -290,11 +290,27 @@ export function OrderForm({ clients, products, defaultClientId, order, orderItem
           ) : (
             <Select value={branchId} onValueChange={(v) => { if (v) setValue("branch_id", v); }}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar sucursal..." />
+                <SelectValue>
+                  {(() => {
+                    const b = BRANCHES.find((b) => b.id === branchId);
+                    if (!b) return <span className="text-muted-foreground">Seleccionar sucursal...</span>;
+                    return (
+                      <span className="flex items-center gap-2">
+                        {b.name}
+                        <span className="text-xs text-(--sas-text-muted) font-mono">({b.code})</span>
+                      </span>
+                    );
+                  })()}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {BRANCHES.map((b) => (
-                  <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                  <SelectItem key={b.id} value={b.id}>
+                    <span className="flex items-center gap-2">
+                      {b.name}
+                      <span className="text-xs text-(--sas-text-muted) font-mono">({b.code})</span>
+                    </span>
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
