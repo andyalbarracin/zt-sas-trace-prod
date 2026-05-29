@@ -2,7 +2,7 @@
 // page.tsx — src/app/(auth)/login/page.tsx — 2026-05-20
 // Login split-screen 60/40: slider industrial izquierda + formulario derecha
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,48 +11,13 @@ import Link from "next/link";
 import {
   Activity,
   Loader2,
-  ChevronLeft,
-  ChevronRight,
   Eye,
   EyeOff,
-  ArrowRight,
-  ClipboardList,
-  ShieldCheck,
-  BarChart3,
-  FileDown,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-// ─── Slides del panel izquierdo ─────────────────────────────────────────────
-const SLIDES = [
-  {
-    icon: ClipboardList,
-    tag: "Trazabilidad completa",
-    title: "Cada orden, bajo control",
-    body: "Registrá, numerá y seguí todas tus órdenes de trabajo desde el ingreso hasta la entrega. Cumplimiento ISO 9001:2015 garantizado.",
-    gradient: "from-[#0B2447] via-[#0d2d58] to-[#19376D]",
-    accent: "#576CBC",
-  },
-  {
-    icon: ShieldCheck,
-    tag: "Auditoría integrada",
-    title: "Nada se pierde, todo queda registrado",
-    body: "Historial completo de cambios de estado, log de auditoría con usuario y timestamp. Preparado para tus próximas auditorías.",
-    gradient: "from-[#0d2050] via-[#153a7a] to-[#1a4a96]",
-    accent: "#A5D7E8",
-  },
-  {
-    icon: BarChart3,
-    tag: "Dashboard operativo",
-    title: "Visibilidad del taller en tiempo real",
-    body: "Métricas clave, vencimientos próximos, órdenes por estado. Exportá a Excel o PDF con un clic. Tu taller, siempre ordenado.",
-    gradient: "from-[#071a38] via-[#0B2447] to-[#19376D]",
-    accent: "#576CBC",
-  },
-];
 
 // ─── Schemas ─────────────────────────────────────────────────────────────────
 const loginSchema = z.object({
@@ -78,18 +43,11 @@ type RegisterForm = z.infer<typeof registerSchema>;
 // ─── Componente ──────────────────────────────────────────────────────────────
 export default function LoginPage() {
   const router = useRouter();
-  const [slide, setSlide] = useState(0);
   const [isRegister, setIsRegister] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
-
-  // Auto-advance slides
-  useEffect(() => {
-    const t = setInterval(() => setSlide((s) => (s + 1) % SLIDES.length), 5000);
-    return () => clearInterval(t);
-  }, []);
 
   // Login form
   const loginForm = useForm<LoginForm>({
@@ -136,109 +94,98 @@ export default function LoginPage() {
     registerForm.reset();
   }
 
-  const prevSlide = () => setSlide((s) => (s - 1 + SLIDES.length) % SLIDES.length);
-  const nextSlide = () => setSlide((s) => (s + 1) % SLIDES.length);
-  const currentSlide = SLIDES[slide];
-  const SlideIcon = currentSlide.icon;
-
   return (
     <div className="flex min-h-screen w-full overflow-hidden">
 
-      {/* ── Panel izquierdo 60% — Slider ──────────────────────────────── */}
+      {/* ── Panel izquierdo — Arte estático ─────────────────────────── */}
       <div
-        className={`hidden lg:flex lg:w-[60%] relative flex-col justify-between p-12 bg-linear-to-br transition-all duration-700 ${currentSlide.gradient}`}
-        style={{ minHeight: "100vh" }}
+        className="hidden lg:flex lg:w-[55%] relative flex-col p-12"
+        style={{
+          background: "radial-gradient(120% 120% at 18% 0%, #234784 0%, #102C53 42%, #0B2447 100%)",
+          minHeight: "100vh",
+        }}
       >
-        {/* Patrón decorativo de fondo */}
-        <div className="absolute inset-0 opacity-5 pointer-events-none"
+        {/* Dot pattern */}
+        <div
+          className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundImage: "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)",
+            backgroundSize: "22px 22px",
+            maskImage: "linear-gradient(160deg, #000, transparent 70%)",
+          }}
+        />
+
+        {/* Glow */}
+        <div
+          className="absolute -top-30 -right-30 w-115 h-115 rounded-full pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, rgba(165,215,232,0.45), transparent 62%)",
+            filter: "blur(20px)",
           }}
         />
 
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
-            <Activity className="w-6 h-6 text-white" />
+          <div className="w-9 h-9 rounded-[9px] bg-white/10 border border-white/20 flex items-center justify-center">
+            <Activity className="w-5 h-5 text-white" />
           </div>
-          <div>
-            <span className="text-white font-bold text-xl tracking-tight">Zaire Trace</span>
-            <span className="block text-white/40 text-xs">Empresa Demo S.A.</span>
-          </div>
+          <span className="text-white font-bold text-[17px] tracking-tight">Zaire Trace</span>
         </div>
 
-        {/* Slide content */}
-        <div className="relative z-10 space-y-8 flex-1 flex flex-col justify-center py-16">
-          {/* Tag */}
+        {/* Tagline */}
+        <div className="relative z-10 mt-12 flex-1 flex flex-col justify-center">
+          <p className="text-[11px] font-semibold tracking-[0.09em] uppercase text-[#A5D7E8] mb-4">Gestión & Trazabilidad</p>
+          <h2 className="text-[33px] font-bold leading-[1.12] tracking-tight text-white mb-4 max-w-115">
+            Cada orden de trabajo, de punta a punta y bajo control.
+          </h2>
+          <p className="text-[15px] text-[#AFC0E0] leading-relaxed max-w-102.5">
+            Seguimiento de órdenes, repuestos y tiempos de taller en un solo lugar. Pensado para equipos de servicio técnico industrial.
+          </p>
+        </div>
+
+        {/* Mock dashboard */}
+        <div className="relative z-10 mt-auto">
           <div
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold w-fit"
-            style={{ backgroundColor: `${currentSlide.accent}25`, color: currentSlide.accent, border: `1px solid ${currentSlide.accent}40` }}
+            className="rounded-[14px] p-4"
+            style={{
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(255,255,255,0.14)",
+              backdropFilter: "blur(4px)",
+              boxShadow: "0 30px 70px -20px rgba(0,0,0,0.6)",
+            }}
           >
-            <SlideIcon className="w-3.5 h-3.5" />
-            {currentSlide.tag}
-          </div>
-
-          {/* Heading */}
-          <div className="space-y-4">
-            <h2 className="text-4xl xl:text-5xl font-bold text-white leading-tight">
-              {currentSlide.title}
-            </h2>
-            <p className="text-white/60 text-lg leading-relaxed max-w-lg">
-              {currentSlide.body}
-            </p>
-          </div>
-
-          {/* Feature bullets */}
-          <div className="grid grid-cols-2 gap-3 max-w-lg">
-            {[
-              "Numeración automática OT/OTS",
-              "Historial de estados completo",
-              "Export Excel y PDF",
-              "Log de auditoría ISO 9001",
-            ].map((f) => (
-              <div key={f} className="flex items-center gap-2 text-sm text-white/50">
-                <ArrowRight className="w-3.5 h-3.5 shrink-0" style={{ color: currentSlide.accent }} />
-                {f}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Slide controls */}
-        <div className="relative z-10 flex items-center justify-between">
-          <div className="flex gap-2">
-            {SLIDES.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setSlide(i)}
-                className="h-1.5 rounded-full transition-all duration-300"
-                style={{
-                  width: i === slide ? "32px" : "8px",
-                  backgroundColor: i === slide ? currentSlide.accent : "rgba(255,255,255,0.25)",
-                }}
-                aria-label={`Slide ${i + 1}`}
-              />
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={prevSlide}
-              className="w-9 h-9 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={nextSlide}
-              className="w-9 h-9 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-colors"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+            {/* Traffic lights */}
+            <div className="flex gap-1.5 mb-3">
+              {[0,1,2].map((i) => <span key={i} className="w-2.5 h-2.5 rounded-full bg-white/30 block" />)}
+            </div>
+            {/* KPI mini cards */}
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              {[["37","Abiertas"],["14","En taller"],["52","Entregadas"]].map(([val, label]) => (
+                <div key={label} className="rounded-[9px] p-3" style={{ background: "rgba(255,255,255,0.09)" }}>
+                  <b className="block text-[17px] font-bold text-white">{val}</b>
+                  <span className="text-[9px] text-[#AFC0E0]">{label}</span>
+                </div>
+              ))}
+            </div>
+            {/* Mini bar chart */}
+            <div className="flex items-end gap-2 h-16 rounded-[9px] px-3 py-3" style={{ background: "rgba(255,255,255,0.06)" }}>
+              {[42,64,38,80,56,70,48,90].map((h, i) => (
+                <div
+                  key={i}
+                  className="flex-1 rounded-t-lg"
+                  style={{
+                    height: `${h}%`,
+                    background: "linear-gradient(to bottom, #A5D7E8, #576CBC)",
+                  }}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── Panel derecho 40% — Formulario ────────────────────────────── */}
-      <div className="flex-1 lg:w-[40%] flex flex-col min-h-screen bg-[#F7F7F7]">
+      {/* ── Panel derecho 45% — Formulario ────────────────────────────── */}
+      <div className="flex-1 lg:w-[45%] flex flex-col min-h-screen bg-white">
         {/* Mobile logo */}
         <div className="lg:hidden flex items-center gap-2 p-6 border-b border-gray-200 bg-sas-navy">
           <Activity className="w-5 h-5 text-white" />
@@ -249,13 +196,13 @@ export default function LoginPage() {
         <div className="flex-1 flex flex-col justify-center px-8 py-10 xl:px-14">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">
-              {isRegister ? "Crear cuenta" : "Bienvenido"}
+            <h1 className="text-[25px] font-bold text-gray-900 mb-1.5 tracking-[-0.02em]">
+              {isRegister ? "Crear cuenta" : "Iniciá sesión"}
             </h1>
             <p className="text-sm text-gray-500">
               {isRegister
                 ? "Completá tus datos para registrarte"
-                : "Ingresá a tu cuenta de Zaire Trace"}
+                : "Ingresá con tu cuenta para continuar."}
             </p>
           </div>
 
@@ -280,11 +227,9 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="login-password" className="text-gray-700 font-medium text-sm">
-                    Contraseña
-                  </Label>
-                </div>
+                <Label htmlFor="login-password" className="text-gray-700 font-medium text-sm">
+                  Contraseña
+                </Label>
                 <div className="relative">
                   <Input
                     id="login-password"
@@ -308,6 +253,17 @@ export default function LoginPage() {
                 )}
               </div>
 
+              {/* Recordarme + Olvidé */}
+              <div className="flex items-center justify-between text-[12.5px]">
+                <label className="flex items-center gap-2 text-gray-600 cursor-pointer select-none">
+                  <input type="checkbox" className="w-3.5 h-3.5 accent-sas-blue" defaultChecked />
+                  Recordarme
+                </label>
+                <span className="text-sas-blue font-medium cursor-pointer hover:underline">
+                  ¿Olvidaste tu contraseña?
+                </span>
+              </div>
+
               {authError && (
                 <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
                   {authError}
@@ -324,6 +280,22 @@ export default function LoginPage() {
                 ) : (
                   "Ingresar"
                 )}
+              </Button>
+
+              {/* Divider */}
+              <div className="relative flex items-center gap-3">
+                <div className="flex-1 h-px bg-gray-200" />
+                <span className="text-[11.5px] text-gray-400">o</span>
+                <div className="flex-1 h-px bg-gray-200" />
+              </div>
+
+              {/* SSO button (visual only) */}
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full h-11 border-gray-200 bg-white text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Acceso con SSO corporativo
               </Button>
 
               <div className="relative flex items-center gap-3 py-1">
@@ -451,16 +423,12 @@ export default function LoginPage() {
           )}
         </div>
 
-        {/* Footer con links legales */}
-        <div className="px-8 xl:px-14 py-6 border-t border-gray-200">
-          <p className="text-xs text-gray-400 text-center">
-            © 2026 Empresa Demo S.A. · ISO 9001:2015 ·{" "}
-            <Link href="/terminos" className="hover:text-gray-600 underline underline-offset-2">
-              Términos y Condiciones
-            </Link>
-            {" · "}
-            <Link href="/terminos#privacidad" className="hover:text-gray-600 underline underline-offset-2">
-              Política de Privacidad
+        {/* Footer */}
+        <div className="px-8 xl:px-14 py-6 border-t border-gray-100">
+          <p className="text-[12.5px] text-gray-400 text-center">
+            ¿Problemas para ingresar?{" "}
+            <Link href="/ayuda" className="text-sas-blue font-medium hover:underline">
+              Contactar a soporte
             </Link>
           </p>
         </div>

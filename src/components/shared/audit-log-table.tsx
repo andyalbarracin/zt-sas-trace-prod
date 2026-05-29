@@ -2,7 +2,7 @@
 // audit-log-table.tsx — src/components/shared/audit-log-table.tsx — 2026-05-19
 // Tabla de auditoría con filtros, búsqueda y expansión de datos JSON
 
-import { useState, useMemo } from "react";
+import { Fragment, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Search, ChevronDown, ChevronUp, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -115,9 +115,8 @@ export function AuditLogTable({ logs }: AuditLogTableProps) {
               const navRoute = ENTITY_ROUTES[log.entity_type];
               const isNavigable = navRoute !== null && navRoute !== undefined && !!log.entity_id;
               return (
-                <>
+                <Fragment key={log.id}>
                   <tr
-                    key={log.id}
                     onClick={() => {
                       if (isNavigable) router.push(`${navRoute}/${log.entity_id}`);
                     }}
@@ -157,7 +156,7 @@ export function AuditLogTable({ logs }: AuditLogTableProps) {
                     </td>
                   </tr>
                   {expanded && (
-                    <tr key={`${log.id}-detail`} className="bg-slate-50">
+                    <tr className="bg-slate-50">
                       <td colSpan={6} className="px-4 py-3">
                         <div className="grid grid-cols-2 gap-4">
                           {log.old_data && (
@@ -180,7 +179,7 @@ export function AuditLogTable({ logs }: AuditLogTableProps) {
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               );
             })}
             {!filtered.length && (

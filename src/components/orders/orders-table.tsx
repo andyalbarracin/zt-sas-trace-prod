@@ -37,6 +37,10 @@ interface ItemSummary {
   custom_description: string | null;
   origen_abastecimiento: string | null;
   total_price_ars: number;
+  marca: string | null;
+  materiales_caras: string | null;
+  materiales_orings: string | null;
+  additional_observation: string | null;
 }
 
 interface OrderRow {
@@ -49,37 +53,48 @@ interface OrderRow {
   currency: string;
   total: number;
   branch_id: string | null;
-  clients: { id: string; business_name: string } | null;
+  general_notes: string | null;
+  clients: { id: string; business_name: string; client_code: string | null } | null;
   work_order_items: ItemSummary[];
 }
 
 interface OrdersTableProps {
   initialOrders: OrderRow[];
   clients: { id: string; business_name: string }[];
+  initialSearch?: string;
 }
 
-// Custom global filter that also searches through items
+// Custom global filter — searches across order, client and all item fields
 const globalFilterFn: FilterFn<OrderRow> = (row, _columnId, filterValue: string) => {
   if (!filterValue) return true;
   const search = filterValue.toLowerCase();
   const r = row.original;
 
+  // Order-level fields
   if (r.order_number.toLowerCase().includes(search)) return true;
-  if (r.clients?.business_name.toLowerCase().includes(search)) return true;
+  if (r.general_notes?.toLowerCase().includes(search)) return true;
   if (ORDER_STATUS_LABELS[r.status as OrderStatus]?.toLowerCase().includes(search)) return true;
 
-  // Search through item fields
+  // Client fields
+  if (r.clients?.business_name.toLowerCase().includes(search)) return true;
+  if (r.clients?.client_code?.toLowerCase().includes(search)) return true;
+
+  // Item fields
   return (r.work_order_items ?? []).some(
     (item) =>
       item.serial_number?.toLowerCase().includes(search) ||
       item.custom_description?.toLowerCase().includes(search) ||
-      item.origen_abastecimiento?.toLowerCase().includes(search)
+      item.origen_abastecimiento?.toLowerCase().includes(search) ||
+      item.marca?.toLowerCase().includes(search) ||
+      item.materiales_caras?.toLowerCase().includes(search) ||
+      item.materiales_orings?.toLowerCase().includes(search) ||
+      item.additional_observation?.toLowerCase().includes(search)
   );
 };
 
-export function OrdersTable({ initialOrders, clients }: OrdersTableProps) {
+export function OrdersTable({ initialOrders, clients, initialSearch = "" }: OrdersTableProps) {
   const router = useRouter();
-  const [globalFilter, setGlobalFilter] = useState("");
+  const [globalFilter, setGlobalFilter] = useState(initialSearch);
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [clientFilter, setClientFilter] = useState("all");

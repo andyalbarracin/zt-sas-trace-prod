@@ -184,19 +184,28 @@ const SECTIONS: Section[] = [
     icon: Search,
     title: "Filtros y búsqueda",
     color: "text-cyan-600",
-    keywords: "buscar filtrar búsqueda global número serie estado sucursal cliente fechas combinar tabla",
+    keywords: "buscar filtrar búsqueda global número serie estado sucursal cliente fechas combinar tabla header barra observaciones generales adicionales marca materiales caras orings código cliente",
     steps: [
       {
-        title: "Búsqueda global",
-        body: "El campo 'Buscar por orden, cliente, serie...' busca simultáneamente en: número de orden, razón social del cliente, estado, número de serie de ítems, descripción de ítems y origen de abastecimiento.",
+        title: "Barra de búsqueda global (header)",
+        body: "La barra de búsqueda en la parte superior de la pantalla (⌘K) busca en toda la base de órdenes y redirige automáticamente a la tabla de Órdenes con el filtro aplicado. Podés escribir cualquier término y encontrar órdenes por múltiples criterios a la vez.",
+        alert: { type: "info", text: "Presioná Enter o hacé clic en el ícono de lupa para ejecutar la búsqueda desde el header." },
       },
       {
-        title: "Filtros disponibles",
-        body: "Tipo: OT, OTS o Todos. Estado: selección múltiple (se pueden elegir varios estados a la vez). Sucursal: BB, NQN, NOA, BUE. Cliente: selector con todos los clientes. Rango de fechas: Desde / Hasta por fecha de ingreso.",
+        title: "Campos incluidos en la búsqueda",
+        body: "La búsqueda global cubre todos estos campos simultáneamente: número de orden, observaciones generales de la orden, razón social del cliente, código de cliente, estado de la orden, y por cada ítem: número de serie, descripción, marca, materiales de caras, materiales de o'rings, observaciones adicionales del ítem y origen de abastecimiento.",
+      },
+      {
+        title: "Ejemplos de búsqueda útiles",
+        body: "Podés buscar: 'SKF' para encontrar todas las órdenes con ítems de esa marca; 'carburo' para encontrar ítems con ese material; 'C-0012' para encontrar órdenes del cliente con ese código; o cualquier texto que hayas escrito en observaciones generales o de ítem.",
+      },
+      {
+        title: "Filtros adicionales en la tabla",
+        body: "Además de la búsqueda de texto, la tabla tiene filtros independientes: Tipo (OT/OTS), Estado (selección múltiple), Sucursal (BB, NQN, NOA, BUE), Cliente (selector) y rango de fechas de ingreso (Desde/Hasta).",
       },
       {
         title: "Filtros combinados",
-        body: "Todos los filtros se aplican simultáneamente. Por ejemplo: OTS + estado 'En Reparación' + cliente 'Tecpetrol' mostrará solo las OTS en reparación de ese cliente.",
+        body: "Todos los filtros se aplican simultáneamente sobre el texto buscado. Por ejemplo: buscar 'viton' + filtrar por sucursal NQN + estado 'En Reparación' mostrará solo las OTS de esa sucursal en reparación que tengan 'viton' en materiales.",
       },
       {
         title: "Navegar al detalle",

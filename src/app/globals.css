@@ -141,3 +141,27 @@ textarea:focus-visible {
   box-shadow: 0 0 0 3px rgba(87, 108, 188, 0.12) !important;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
+
+/* ===== Entrance animations ===== */
+@keyframes zt-fade-up {
+  from { opacity: 0; transform: translateY(9px); }
+  to   { opacity: 1; transform: none; }
+}
+.animate-fade-up   { animation: zt-fade-up 0.34s cubic-bezier(.2,.8,.2,1) both; }
+.animate-fade-up-1 { animation: zt-fade-up 0.34s cubic-bezier(.2,.8,.2,1) 0.05s both; }
+.animate-fade-up-2 { animation: zt-fade-up 0.34s cubic-bezier(.2,.8,.2,1) 0.10s both; }
+.animate-fade-up-3 { animation: zt-fade-up 0.34s cubic-bezier(.2,.8,.2,1) 0.15s both; }
+
+/* Pop-in para modales / dropdowns */
+@keyframes zt-pop {
+  from { opacity: 0; transform: translateY(6px) scale(.98); }
+  to   { opacity: 1; transform: none; }
+}
+.animate-zt-pop { animation: zt-pop 0.16s ease both; }
+
+/* Bar chart grow (left origin) */
+@keyframes zt-grow {
+  from { transform: scaleX(0.7); opacity: 0.55; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+.animate-zt-grow { transform-origin: left; animation: zt-grow 0.7s cubic-bezier(.2,.8,.2,1) both; }
