@@ -112,6 +112,56 @@
 
 @layer utilities {
   .sas-card {
-    @apply bg-white border border-(--sas-border) rounded-lg shadow-sm;
+    background: white;
+    border: 1px solid var(--sas-border);
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06);
   }
 }
+
+/* Scrollbars refinados */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 99px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+  background-clip: content-box;
+}
+
+/* Focus ring mejorado en inputs */
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-color: #6E82CC !important;
+  box-shadow: 0 0 0 3px rgba(87, 108, 188, 0.12) !important;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+/* ===== Entrance animations ===== */
+@keyframes zt-fade-up {
+  from { opacity: 0; transform: translateY(9px); }
+  to   { opacity: 1; transform: none; }
+}
+.animate-fade-up   { animation: zt-fade-up 0.34s cubic-bezier(.2,.8,.2,1) both; }
+.animate-fade-up-1 { animation: zt-fade-up 0.34s cubic-bezier(.2,.8,.2,1) 0.05s both; }
+.animate-fade-up-2 { animation: zt-fade-up 0.34s cubic-bezier(.2,.8,.2,1) 0.10s both; }
+.animate-fade-up-3 { animation: zt-fade-up 0.34s cubic-bezier(.2,.8,.2,1) 0.15s both; }
+
+/* Pop-in para modales / dropdowns */
+@keyframes zt-pop {
+  from { opacity: 0; transform: translateY(6px) scale(.98); }
+  to   { opacity: 1; transform: none; }
+}
+.animate-zt-pop { animation: zt-pop 0.16s ease both; }
+
+/* Bar chart grow (left origin) */
+@keyframes zt-grow {
+  from { transform: scaleX(0.7); opacity: 0.55; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+.animate-zt-grow { transform-origin: left; animation: zt-grow 0.7s cubic-bezier(.2,.8,.2,1) both; }

@@ -20,22 +20,25 @@ export async function GET(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sb = supabase as any;
 
-  const [{ data: orderRaw }, { data: itemsRaw }] = await Promise.all([
+  const [{ data: orderRaw }, { data: itemsRaw }, { data: settingsRaw }] = await Promise.all([
     sb.from("work_orders").select(`
       id, order_number, order_type, date_in, currency,
       clients(business_name, client_code)
     `).eq("id", id).single(),
     sb.from("work_order_items").select(`
       item_number, quantity, custom_description, serial_number,
-      marca, materiales_caras, materiales_orings, repair_required,
+      marca, materiales_caras, materiales_orings, repair_required, modelo,
       products(code, name, brand, model)
     `).eq("work_order_id", id).eq("repair_required", true).order("item_number"),
+    sb.from("company_settings").select("*").eq("id", 1).single(),
   ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const order = orderRaw as any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const items = (itemsRaw ?? []) as any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const companyInfo = (settingsRaw ?? null) as any;
 
   if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (order.order_type !== "OTS") return NextResponse.json({ error: "Solo disponible para órdenes OTS" }, { status: 400 });
@@ -43,7 +46,7 @@ export async function GET(
 
   const buffer = await renderToBuffer(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    React.createElement(RepairPdfDocument, { order, items }) as any
+    React.createElement(RepairPdfDocument, { order, items, companyInfo }) as any
   );
 
   return new NextResponse(buffer as unknown as BodyInit, {

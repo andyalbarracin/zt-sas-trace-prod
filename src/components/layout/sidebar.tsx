@@ -31,11 +31,14 @@ interface NavItem {
   adminOnly?: boolean;
 }
 
-const NAV_ITEMS: NavItem[] = [
+const NAV_MAIN: NavItem[] = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/ordenes", label: "Órdenes de Trabajo", icon: ClipboardList },
   { href: "/clientes", label: "Clientes", icon: Users },
   { href: "/productos", label: "Productos", icon: Package },
+];
+
+const NAV_GESTION: NavItem[] = [
   { href: "/historial", label: "Historial", icon: History },
   { href: "/reportes", label: "Reportes", icon: BarChart3 },
   { href: "/configuracion", label: "Configuración", icon: Settings, adminOnly: true },
@@ -85,7 +88,7 @@ export function Sidebar({ profile }: SidebarProps) {
       {/* Toggle collapse */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-16 w-6 h-6 bg-sas-navy-mid border border-sas-blue rounded-full flex items-center justify-center text-white hover:bg-sas-blue transition-colors z-10"
+        className="absolute -right-2.75 top-17.5 w-5.5 h-5.5 bg-white border border-(--sas-border) rounded-[7px] flex items-center justify-center text-(--sas-text-muted) hover:text-sas-blue shadow-sm transition-colors duration-150 z-10"
         aria-label={collapsed ? "Expandir sidebar" : "Colapsar sidebar"}
       >
         {collapsed ? (
@@ -96,24 +99,51 @@ export function Sidebar({ profile }: SidebarProps) {
       </button>
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 overflow-y-auto">
-        <ul className="space-y-1 px-2">
-          {NAV_ITEMS.filter(
+      <nav className="flex-1 py-2 overflow-y-auto scrollbar-none">
+        {/* Sección principal */}
+        <ul className="space-y-0.5 px-3.5">
+          {NAV_MAIN.map((item) => (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className={cn(
+                  "relative flex items-center gap-3 px-3 py-2.5 rounded-[9px] text-[13.5px] font-medium transition-colors duration-140",
+                  isActive(item.href)
+                    ? "bg-linear-to-r from-sas-blue/30 to-sas-blue/15 text-white before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-0.5 before:rounded-r-[3px] before:bg-sas-light"
+                    : "text-[#B7C5E0] hover:text-white hover:bg-white/6",
+                  collapsed && "justify-center px-2"
+                )}
+                title={collapsed ? item.label : undefined}
+              >
+                <item.icon className="w-4.5 h-4.5 shrink-0" />
+                {!collapsed && <span className="truncate">{item.label}</span>}
+              </Link>
+            </li>
+          ))}
+        </ul>
+
+        {/* Divider + label Gestión */}
+        <div className="h-px bg-white/[0.07] mx-3 my-2.5" />
+        {!collapsed && (
+          <div className="text-[10px] font-semibold tracking-widest uppercase text-[#5C719B] px-6 pb-1.5">Gestión</div>
+        )}
+        <ul className="space-y-0.5 px-3.5">
+          {NAV_GESTION.filter(
             (item) => !item.adminOnly || profile?.role === "admin"
           ).map((item) => (
             <li key={item.href}>
               <Link
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-150",
+                  "relative flex items-center gap-3 px-3 py-2.5 rounded-[9px] text-[13.5px] font-medium transition-colors duration-140",
                   isActive(item.href)
-                    ? "bg-sas-navy-mid border-l-2 border-sas-blue text-white"
-                    : "text-white/70 hover:text-white hover:bg-sas-navy-mid/60",
+                    ? "bg-linear-to-r from-sas-blue/30 to-sas-blue/15 text-white before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-0.5 before:rounded-r-[3px] before:bg-sas-light"
+                    : "text-[#B7C5E0] hover:text-white hover:bg-white/6",
                   collapsed && "justify-center px-2"
                 )}
                 title={collapsed ? item.label : undefined}
               >
-                <item.icon className="w-5 h-5 shrink-0" />
+                <item.icon className="w-4.5 h-4.5 shrink-0" />
                 {!collapsed && <span className="truncate">{item.label}</span>}
               </Link>
             </li>
@@ -121,26 +151,29 @@ export function Sidebar({ profile }: SidebarProps) {
         </ul>
       </nav>
 
-      {/* Ayuda — separado del nav principal */}
-      <div className="px-2 py-2 border-t border-sas-navy-mid/50">
+      {/* Soporte (Ayuda) */}
+      <div className="px-3.5 border-t border-white/[0.07] pt-2 pb-1">
+        {!collapsed && (
+          <div className="text-[10px] font-semibold tracking-widest uppercase text-[#5C719B] px-3 pt-1 pb-1.5">Soporte</div>
+        )}
         <Link
           href="/ayuda"
           className={cn(
-            "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-150",
+            "relative flex items-center gap-3 px-3 py-2.5 rounded-[9px] text-[13.5px] font-medium transition-colors duration-140",
             isActive("/ayuda")
-              ? "bg-sas-navy-mid border-l-2 border-sas-blue text-white"
-              : "text-white/70 hover:text-white hover:bg-sas-navy-mid/60",
+              ? "bg-linear-to-r from-sas-blue/30 to-sas-blue/15 text-white before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-0.5 before:rounded-r-[3px] before:bg-sas-light"
+              : "text-[#B7C5E0] hover:text-white hover:bg-white/6",
             collapsed && "justify-center px-2"
           )}
           title={collapsed ? "Ayuda" : undefined}
         >
-          <LifeBuoy className="w-5 h-5 shrink-0" />
+          <LifeBuoy className="w-4.5 h-4.5 shrink-0" />
           {!collapsed && <span className="truncate">Ayuda</span>}
         </Link>
       </div>
 
       {/* User footer */}
-      <div className="border-t border-sas-navy-mid p-3">
+      <div className="border-t border-white/[0.07] p-3">
         {!collapsed ? (
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-sas-blue flex items-center justify-center text-xs font-bold shrink-0">

@@ -1,10 +1,10 @@
-// page.tsx — src/app/(dashboard)/configuracion/page.tsx — 2026-05-19
+// page.tsx — src/app/(dashboard)/configuracion/page.tsx
 // Página de configuración (solo administradores)
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { EMPRESA_INFO } from "@/lib/constants";
-import type { Profile } from "@/lib/types/database";
+import { CompanySettingsForm } from "@/components/settings/company-settings-form";
+import type { Profile, CompanySettings } from "@/lib/types/database";
 
 export const dynamic = "force-dynamic";
 
@@ -21,12 +21,32 @@ export default async function ConfiguracionPage() {
   const profile = profileRaw as Pick<Profile, "role"> | null;
   if (profile?.role !== "admin") redirect("/");
 
-  const { data: usersRaw } = await supabase
-    .from("profiles")
-    .select("id, full_name, email, role, created_at")
-    .order("full_name");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sb = supabase as any;
 
+  const [{ data: settingsRaw }, { data: usersRaw }] = await Promise.all([
+    sb.from("company_settings").select("*").eq("id", 1).single(),
+    supabase.from("profiles").select("id, full_name, email, role, created_at").order("full_name"),
+  ]);
+
+  const settings = settingsRaw as CompanySettings | null;
   const users = usersRaw as Pick<Profile, "id" | "full_name" | "email" | "role" | "created_at">[] | null;
+
+  // Fallback si aún no existe la fila en company_settings
+  const settingsFallback: CompanySettings = settings ?? {
+    id: 1,
+    nombre: "Empresa Demo S.A.",
+    cuit: "30-00000000-0",
+    direccion: "Dirección 1234",
+    ciudad: "Buenos Aires, Argentina",
+    telefono: "+54 11 0000-0000",
+    email: "demo@empresa.com",
+    web: "www.empresa.com",
+    logo_url: null,
+    logo_use_in_pdfs: false,
+    updated_at: new Date().toISOString(),
+    updated_by: null,
+  };
 
   return (
     <div className="space-y-6">
@@ -36,17 +56,10 @@ export default async function ConfiguracionPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Info de la empresa */}
+        {/* Datos editables de la empresa */}
         <div className="sas-card p-6">
-          <h2 className="font-semibold text-(--sas-text) mb-4">Información de la empresa</h2>
-          <div className="space-y-3 text-sm">
-            {Object.entries(EMPRESA_INFO).map(([key, value]) => (
-              <div key={key} className="flex justify-between border-b border-(--sas-border) pb-2 last:border-0">
-                <span className="text-(--sas-text-muted) capitalize">{key.replace(/_/g, " ")}</span>
-                <span className="font-medium">{value}</span>
-              </div>
-            ))}
-          </div>
+          <h2 className="font-semibold text-(--sas-text) mb-5">Información de la empresa</h2>
+          <CompanySettingsForm settings={settingsFallback} />
         </div>
 
         {/* Usuarios */}

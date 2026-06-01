@@ -1,12 +1,23 @@
 // repair-pdf-template.tsx — src/lib/pdf/repair-pdf-template.tsx
 // Template PDF RC 010-00 — Planilla de Reparación (una hoja por ítem)
 
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { EMPRESA_INFO } from "@/lib/constants";
 import { BRANDING } from "@/lib/branding";
 import type { Currency } from "@/lib/types/database";
+
+interface CompanyInfo {
+  nombre: string;
+  cuit?: string | null;
+  direccion?: string | null;
+  ciudad?: string | null;
+  telefono?: string | null;
+  email?: string | null;
+  logo_url?: string | null;
+  logo_use_in_pdfs?: boolean;
+}
 
 const COMPONENTS = [
   "PISTA ROTATIVA INTERNA",
@@ -112,7 +123,7 @@ function fmtDate(d: string | null) {
   return format(new Date(d), "dd/MM/yyyy", { locale: es });
 }
 
-function ItemPage({ order, item }: { order: RepairPdfProps["order"]; item: RepairItem }) {
+function ItemPage({ order, item, co }: { order: RepairPdfProps["order"]; item: RepairItem; co: CompanyInfo }) {
   const nombre = item.products?.name ?? item.custom_description ?? "Sin descripción";
   const marca = item.marca ?? item.products?.brand ?? "—";
   const modelo = item.products?.model ?? "—";
@@ -125,11 +136,24 @@ function ItemPage({ order, item }: { order: RepairPdfProps["order"]; item: Repai
     <Page size="A4" style={S.page}>
       {/* Header */}
       <View style={S.header}>
-        <View style={{ flex: 1 }}>
-          <Text style={S.companyName}>{EMPRESA_INFO.nombre}</Text>
-          <Text style={S.companyInfo}>{EMPRESA_INFO.direccion} — {EMPRESA_INFO.ciudad}</Text>
-          <Text style={S.companyInfo}>{EMPRESA_INFO.telefono} · {EMPRESA_INFO.email}</Text>
+        {/* Izquierda: [logo opcional] + datos empresa */}
+        <View style={{ flex: 1, flexDirection: "row", alignItems: "flex-start" }}>
+          {co.logo_use_in_pdfs && co.logo_url && (
+            <View style={{ marginRight: 8, justifyContent: "center" }}>
+              <Image src={co.logo_url} style={{ height: 40, objectFit: "contain" }} />
+            </View>
+          )}
+          <View>
+            <Text style={S.companyName}>{co.nombre}</Text>
+            {(co.direccion || co.ciudad) && (
+              <Text style={S.companyInfo}>{[co.direccion, co.ciudad].filter(Boolean).join(" — ")}</Text>
+            )}
+            {(co.telefono || co.email) && (
+              <Text style={S.companyInfo}>{[co.telefono, co.email].filter(Boolean).join(" · ")}</Text>
+            )}
+          </View>
         </View>
+        {/* Derecha: siempre RC 010-00 + título + Vigencia */}
         <View style={{ alignItems: "flex-end" }}>
           <Text style={S.docCode}>RC 010-00</Text>
           <Text style={S.docTitle}>PLANILLA DE REPARACIÓN</Text>
@@ -220,7 +244,7 @@ function ItemPage({ order, item }: { order: RepairPdfProps["order"]; item: Repai
       </View>
 
       {/* Pressure tests */}
-      <View style={S.testsBox}>
+      <View style={S.testsBox} wrap={false}>
         <View style={S.testCard}>
           <Text style={S.testLabel}>PRUEBA NEUMÁTICA</Text>
           <Text style={S.testDetail}>25 a 30 (indicar) PSI / 8 MIN</Text>
@@ -239,8 +263,8 @@ function ItemPage({ order, item }: { order: RepairPdfProps["order"]; item: Repai
         </View>
       </View>
 
-      {/* Notes */}
-      <View style={S.notesArea}>
+      {/* Notes — wrap={false} fuerza que ambos cuadros se muevan a la próxima hoja si no caben */}
+      <View style={S.notesArea} wrap={false}>
         <View style={S.notesBox}>
           <Text style={S.notesLabel}>Observaciones</Text>
           <Text> </Text>
@@ -260,11 +284,21 @@ function ItemPage({ order, item }: { order: RepairPdfProps["order"]; item: Repai
   );
 }
 
-export function RepairPdfDocument({ order, items }: RepairPdfProps) {
+export function RepairPdfDocument({ order, items, companyInfo }: RepairPdfProps & { companyInfo?: CompanyInfo | null }) {
+  const co: CompanyInfo = companyInfo ?? {
+    nombre: EMPRESA_INFO.nombre,
+    cuit: EMPRESA_INFO.cuit,
+    direccion: EMPRESA_INFO.direccion,
+    ciudad: EMPRESA_INFO.ciudad,
+    telefono: EMPRESA_INFO.telefono,
+    email: EMPRESA_INFO.email,
+    logo_url: null,
+    logo_use_in_pdfs: false,
+  };
   return (
     <Document>
       {items.map((item, i) => (
-        <ItemPage key={i} order={order} item={item} />
+        <ItemPage key={i} order={order} item={item} co={co} />
       ))}
     </Document>
   );

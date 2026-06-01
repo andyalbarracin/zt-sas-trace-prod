@@ -14,7 +14,7 @@ export function OrderStatusBadge({ status, className }: OrderStatusBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border",
+        "inline-flex items-center px-2.5 py-0.75 rounded-full text-xs font-semibold border leading-tight",
         ORDER_STATUS_COLORS[status],
         className
       )}

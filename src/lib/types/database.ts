@@ -96,6 +96,8 @@ export interface WorkOrder {
   is_delivered: boolean;
   is_invoiced: boolean;
   general_notes: string | null;
+  orden_compra: string | null;
+  remito_salida: string | null;
   created_by: string | null;
   updated_by: string | null;
   deleted_at: string | null;
@@ -126,12 +128,14 @@ export interface WorkOrderItem {
   status: ItemStatus;
   notes: string | null;
   // Campos técnicos del sello
+  modelo: string | null;
   medida: string | null;
   unidad_medida: "MM" | "PULG" | null;
   marca: string | null;
   materiales_caras: string | null;
   materiales_orings: string | null;
   origen_abastecimiento: string | null;
+  orden_compra_item: string | null;
   // Estados por ítem (semáforo)
   is_quoted: boolean;
   is_remitted: boolean;
@@ -169,6 +173,21 @@ export interface AuditLog {
   user_id: string | null;
   user_name: string | null;
   created_at: string;
+}
+
+export interface CompanySettings {
+  id: number;
+  nombre: string;
+  cuit: string | null;
+  direccion: string | null;
+  ciudad: string | null;
+  telefono: string | null;
+  email: string | null;
+  web: string | null;
+  logo_url: string | null;
+  logo_use_in_pdfs: boolean;
+  updated_at: string;
+  updated_by: string | null;
 }
 
 // Database type for Supabase generic client

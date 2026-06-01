@@ -37,6 +37,10 @@ interface ItemSummary {
   custom_description: string | null;
   origen_abastecimiento: string | null;
   total_price_ars: number;
+  marca: string | null;
+  materiales_caras: string | null;
+  materiales_orings: string | null;
+  additional_observation: string | null;
 }
 
 interface OrderRow {
@@ -49,37 +53,48 @@ interface OrderRow {
   currency: string;
   total: number;
   branch_id: string | null;
-  clients: { id: string; business_name: string } | null;
+  general_notes: string | null;
+  clients: { id: string; business_name: string; client_code: string | null } | null;
   work_order_items: ItemSummary[];
 }
 
 interface OrdersTableProps {
   initialOrders: OrderRow[];
   clients: { id: string; business_name: string }[];
+  initialSearch?: string;
 }
 
-// Custom global filter that also searches through items
+// Custom global filter — searches across order, client and all item fields
 const globalFilterFn: FilterFn<OrderRow> = (row, _columnId, filterValue: string) => {
   if (!filterValue) return true;
   const search = filterValue.toLowerCase();
   const r = row.original;
 
+  // Order-level fields
   if (r.order_number.toLowerCase().includes(search)) return true;
-  if (r.clients?.business_name.toLowerCase().includes(search)) return true;
+  if (r.general_notes?.toLowerCase().includes(search)) return true;
   if (ORDER_STATUS_LABELS[r.status as OrderStatus]?.toLowerCase().includes(search)) return true;
 
-  // Search through item fields
+  // Client fields
+  if (r.clients?.business_name.toLowerCase().includes(search)) return true;
+  if (r.clients?.client_code?.toLowerCase().includes(search)) return true;
+
+  // Item fields
   return (r.work_order_items ?? []).some(
     (item) =>
       item.serial_number?.toLowerCase().includes(search) ||
       item.custom_description?.toLowerCase().includes(search) ||
-      item.origen_abastecimiento?.toLowerCase().includes(search)
+      item.origen_abastecimiento?.toLowerCase().includes(search) ||
+      item.marca?.toLowerCase().includes(search) ||
+      item.materiales_caras?.toLowerCase().includes(search) ||
+      item.materiales_orings?.toLowerCase().includes(search) ||
+      item.additional_observation?.toLowerCase().includes(search)
   );
 };
 
-export function OrdersTable({ initialOrders, clients }: OrdersTableProps) {
+export function OrdersTable({ initialOrders, clients, initialSearch = "" }: OrdersTableProps) {
   const router = useRouter();
-  const [globalFilter, setGlobalFilter] = useState("");
+  const [globalFilter, setGlobalFilter] = useState(initialSearch);
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [clientFilter, setClientFilter] = useState("all");
@@ -371,12 +386,12 @@ export function OrdersTable({ initialOrders, clients }: OrdersTableProps) {
           </div>
         </div>
         {/* Estado multiselect */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-(--sas-text-muted)">Estado:</span>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-xs text-(--sas-text-muted) mr-0.5">Estado:</span>
           <button
             type="button"
             onClick={() => setStatusFilter([])}
-            className={cn("text-xs px-2.5 py-1 rounded-full border transition-colors", statusFilter.length === 0 ? "bg-sas-navy text-white border-sas-navy" : "bg-white text-(--sas-text-muted) border-(--sas-border) hover:border-sas-navy-mid")}
+            className={cn("text-xs px-3 py-1 rounded-full border font-medium transition-colors duration-140", statusFilter.length === 0 ? "bg-sas-navy text-white border-sas-navy" : "bg-white text-(--sas-text-muted) border-(--sas-border) hover:border-sas-navy-mid hover:text-(--sas-text)")}
           >
             Todos
           </button>
@@ -385,7 +400,7 @@ export function OrdersTable({ initialOrders, clients }: OrdersTableProps) {
               key={s}
               type="button"
               onClick={() => setStatusFilter((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s])}
-              className={cn("text-xs px-2.5 py-1 rounded-full border transition-colors", statusFilter.includes(s) ? "bg-sas-navy-mid text-white border-sas-navy-mid" : "bg-white text-(--sas-text-muted) border-(--sas-border) hover:border-sas-navy-mid")}
+              className={cn("text-xs px-3 py-1 rounded-full border font-medium transition-colors duration-140", statusFilter.includes(s) ? "bg-sas-navy-mid text-white border-sas-navy-mid" : "bg-white text-(--sas-text-muted) border-(--sas-border) hover:border-sas-navy-mid hover:text-(--sas-text)")}
             >
               {ORDER_STATUS_LABELS[s]}
             </button>
@@ -416,7 +431,7 @@ export function OrdersTable({ initialOrders, clients }: OrdersTableProps) {
                 key={row.id}
                 onClick={() => router.push(`/ordenes/${row.original.id}`)}
                 className={cn(
-                  "cursor-pointer hover:bg-blue-50/40 transition-colors",
+                  "cursor-pointer hover:bg-blue-50/50 transition-colors duration-100",
                   row.original.status === "cancelada" && "opacity-50",
                   row.original.order_type === "OTS" ? "border-l-2 border-l-orange-200" : "border-l-2 border-l-blue-200"
                 )}
