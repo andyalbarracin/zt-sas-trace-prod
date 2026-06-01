@@ -36,12 +36,14 @@ const itemSchema = z.object({
   repair_required: z.boolean(),
   notes: z.string().optional(),
   // Campos técnicos del sello
+  modelo: z.string().optional(),
   medida: z.string().optional(),
   unidad_medida: z.enum(["MM", "PULG"]).optional().nullable(),
   marca: z.string().optional(),
   materiales_caras: z.string().optional(),
   materiales_orings: z.string().optional(),
   origen_abastecimiento: z.string().optional(),
+  orden_compra_item: z.string().optional(),
   // Estados del ítem
   is_quoted: z.boolean(),
   is_remitted: z.boolean(),
@@ -60,6 +62,8 @@ const orderSchema = z.object({
   date_due: z.string().optional(),
   currency: z.enum(["USD", "ARS"]),
   requiere_compra: z.string().optional().nullable(),
+  orden_compra: z.string().optional(),
+  remito_salida: z.string().optional(),
   general_notes: z.string().optional(),
   items: z.array(itemSchema).min(1, "Debe agregar al menos un ítem"),
 });
@@ -107,6 +111,8 @@ export function OrderForm({ clients, products, defaultClientId, order, orderItem
           date_due: order.date_due?.split("T")[0] ?? "",
           currency: order.currency,
           requiere_compra: order.requiere_compra ?? "",
+          orden_compra: order.orden_compra ?? "",
+          remito_salida: order.remito_salida ?? "",
           general_notes: order.general_notes ?? "",
           items: orderItems?.map((item) => ({
             product_id: item.product_id,
@@ -119,12 +125,14 @@ export function OrderForm({ clients, products, defaultClientId, order, orderItem
             unit_price_ars: item.unit_price_ars ?? 0,
             repair_required: item.repair_required,
             notes: item.notes ?? "",
+            modelo: item.modelo ?? "",
             medida: item.medida ?? "",
             unidad_medida: item.unidad_medida ?? null,
             marca: item.marca ?? "",
             materiales_caras: item.materiales_caras ?? "",
             materiales_orings: item.materiales_orings ?? "",
             origen_abastecimiento: item.origen_abastecimiento ?? "",
+            orden_compra_item: item.orden_compra_item ?? "",
             is_quoted: item.is_quoted ?? false,
             is_remitted: item.is_remitted ?? false,
             qty_remitted: item.qty_remitted ?? 0,
@@ -194,6 +202,8 @@ export function OrderForm({ clients, products, defaultClientId, order, orderItem
         order_type: data.order_type, client_id: data.client_id, date_in: data.date_in,
         date_due: data.date_due || null, currency: data.currency,
         requiere_compra: data.requiere_compra || null,
+        orden_compra: data.orden_compra || null,
+        remito_salida: data.remito_salida || null,
         general_notes: data.general_notes || null, subtotal, total: subtotal, updated_by: user?.id,
       }).eq("id", order.id);
 
@@ -221,6 +231,8 @@ export function OrderForm({ clients, products, defaultClientId, order, orderItem
       client_id: data.client_id, date_in: data.date_in, date_due: data.date_due || null,
       status: "ingresada", currency: data.currency, subtotal, total: subtotal,
       requiere_compra: data.requiere_compra || null,
+      orden_compra: data.orden_compra || null,
+      remito_salida: data.remito_salida || null,
       general_notes: data.general_notes || null, created_by: user?.id,
     }).select("id").single();
 
@@ -255,12 +267,14 @@ export function OrderForm({ clients, products, defaultClientId, order, orderItem
       repair_required: item.repair_required,
       notes: item.notes || null,
       status: "pendiente",
+      modelo: item.modelo || null,
       medida: item.medida || null,
       unidad_medida: item.unidad_medida || null,
       marca: item.marca || null,
       materiales_caras: item.materiales_caras || null,
       materiales_orings: item.materiales_orings || null,
       origen_abastecimiento: item.origen_abastecimiento || null,
+      orden_compra_item: item.orden_compra_item || null,
       is_quoted: item.is_quoted ?? false,
       is_remitted: item.is_remitted ?? false,
       qty_remitted: item.qty_remitted ?? 0,
@@ -382,6 +396,20 @@ export function OrderForm({ clients, products, defaultClientId, order, orderItem
             </div>
           )}
 
+          {/* OC del cliente (siempre visible) */}
+          <div className="space-y-1.5">
+            <Label>Orden de compra (OC del cliente)</Label>
+            <Input {...register("orden_compra")} placeholder="Nro. de OC del cliente..." />
+          </div>
+
+          {/* Remito de salida (solo OTS) */}
+          {orderType === "OTS" && (
+            <div className="space-y-1.5">
+              <Label>Remito de salida</Label>
+              <Input {...register("remito_salida")} placeholder="Nro. de remito de salida..." />
+            </div>
+          )}
+
           <div className="space-y-1.5 lg:col-span-2">
             <Label>Observaciones generales</Label>
             <Textarea
@@ -397,21 +425,59 @@ export function OrderForm({ clients, products, defaultClientId, order, orderItem
       <div className="sas-card p-6">
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-semibold text-(--sas-text)">Ítems</h2>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              append({
-                product_id: null, quantity: 1, unit_price: 0, unit_price_ars: 0, repair_required: false,
-                is_quoted: false, is_remitted: false, qty_remitted: 0,
-                is_delivered: false, qty_delivered: 0, is_invoiced: false, qty_invoiced: 0,
-              });
-              setMarcaDisplay((prev) => [...prev, ""]);
-            }}
-          >
-            <Plus className="w-4 h-4 mr-1.5" /> Agregar ítem
-          </Button>
+          <div className="flex items-center gap-2">
+            {fields.length > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const src = watchedItems[fields.length - 1];
+                  const srcDisplay = marcaDisplay[fields.length - 1] ?? "";
+                  append({
+                    product_id: src.product_id ?? null,
+                    custom_description: src.custom_description ?? "",
+                    quantity: src.quantity,
+                    serial_number: "",
+                    equipment_number: "",
+                    additional_observation: src.additional_observation ?? "",
+                    unit_price: src.unit_price,
+                    unit_price_ars: src.unit_price_ars ?? 0,
+                    repair_required: src.repair_required,
+                    notes: src.notes ?? "",
+                    modelo: src.modelo ?? "",
+                    medida: src.medida ?? "",
+                    unidad_medida: src.unidad_medida ?? null,
+                    marca: src.marca ?? "",
+                    materiales_caras: src.materiales_caras ?? "",
+                    materiales_orings: src.materiales_orings ?? "",
+                    origen_abastecimiento: src.origen_abastecimiento ?? "",
+                    orden_compra_item: "",
+                    is_quoted: false, is_remitted: false, qty_remitted: 0,
+                    is_delivered: false, qty_delivered: 0, is_invoiced: false, qty_invoiced: 0,
+                  });
+                  setMarcaDisplay((prev) => [...prev, srcDisplay]);
+                }}
+              >
+                <Copy className="w-4 h-4 mr-1.5" /> Duplicar
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                append({
+                  product_id: null, quantity: 1, unit_price: 0, unit_price_ars: 0, repair_required: false,
+                  is_quoted: false, is_remitted: false, qty_remitted: 0,
+                  is_delivered: false, qty_delivered: 0, is_invoiced: false, qty_invoiced: 0,
+                });
+                setMarcaDisplay((prev) => [...prev, ""]);
+              }}
+            >
+              <Plus className="w-4 h-4 mr-1.5" /> Agregar ítem
+            </Button>
+          </div>
         </div>
 
         {errors.items && typeof errors.items === "object" && "message" in errors.items && (
@@ -449,12 +515,14 @@ export function OrderForm({ clients, products, defaultClientId, order, orderItem
                           unit_price_ars: src.unit_price_ars ?? 0,
                           repair_required: src.repair_required,
                           notes: src.notes ?? "",
+                          modelo: src.modelo ?? "",
                           medida: src.medida ?? "",
                           unidad_medida: src.unidad_medida ?? null,
                           marca: src.marca ?? "",
                           materiales_caras: src.materiales_caras ?? "",
                           materiales_orings: src.materiales_orings ?? "",
                           origen_abastecimiento: src.origen_abastecimiento ?? "",
+                          orden_compra_item: "",
                           is_quoted: false,
                           is_remitted: false,
                           qty_remitted: 0,
@@ -530,6 +598,12 @@ export function OrderForm({ clients, products, defaultClientId, order, orderItem
                     <Label>Número de equipo / TAG</Label>
                     <Input {...register(`items.${index}.equipment_number`)} placeholder="P-101, K-201..." />
                   </div>
+                </div>
+
+                {/* Modelo */}
+                <div className="space-y-1.5">
+                  <Label>Modelo</Label>
+                  <Input {...register(`items.${index}.modelo`)} placeholder="Tipo 1, ISC2, MG1..." />
                 </div>
 
                 {/* Medida y unidad */}
@@ -636,6 +710,17 @@ export function OrderForm({ clients, products, defaultClientId, order, orderItem
                     </div>
                   </div>
                 </div>
+
+                {/* OC por ítem (solo OTS) */}
+                {orderType === "OTS" && (
+                  <div className="space-y-1.5">
+                    <Label>Orden de compra del ítem</Label>
+                    <Input
+                      {...register(`items.${index}.orden_compra_item`)}
+                      placeholder="Nro. OC del cliente para este ítem..."
+                    />
+                  </div>
+                )}
 
                 {/* Observación */}
                 <div className="space-y-1.5">

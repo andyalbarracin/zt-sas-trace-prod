@@ -51,6 +51,7 @@ export function ProductForm({ open, onOpenChange, product, onSaved }: ProductFor
     reset,
     watch,
     setValue,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -81,6 +82,20 @@ export function ProductForm({ open, onOpenChange, product, onSaved }: ProductFor
 
   async function onSubmit(data: FormData) {
     const supabase = createClient();
+
+    // Verificar código duplicado antes de guardar
+    const codeToCheck = data.code?.trim() || null;
+    if (codeToCheck) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let query = (supabase as any).from("products").select("id").eq("code", codeToCheck);
+      if (isEdit && product) query = query.neq("id", product.id);
+      const { data: existing } = await query.maybeSingle();
+      if (existing) {
+        setError("code", { message: `El código "${codeToCheck}" ya está en uso por otro producto` });
+        return;
+      }
+    }
+
     const payload = {
       code: data.code || null,
       name: data.name,
@@ -127,6 +142,7 @@ export function ProductForm({ open, onOpenChange, product, onSaved }: ProductFor
             <div className="space-y-1.5">
               <Label>Código</Label>
               <Input {...register("code")} placeholder="SM-001" />
+              {errors.code && <p className="text-xs text-red-600">{errors.code.message}</p>}
             </div>
             <div className="col-span-2 space-y-1.5">
               <Label>Nombre *</Label>
@@ -152,7 +168,7 @@ export function ProductForm({ open, onOpenChange, product, onSaved }: ProductFor
               <Select value={watch("unit")} onValueChange={(v) => setValue("unit", v ?? "unidad")}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {["unidad", "juego", "kit", "metro", "par"].map((u) => (
+                  {["unidad", "juego", "kit", "metro", "par", "kg"].map((u) => (
                     <SelectItem key={u} value={u}>{u}</SelectItem>
                   ))}
                 </SelectContent>

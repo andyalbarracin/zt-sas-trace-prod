@@ -1,13 +1,24 @@
 // order-pdf-template.tsx — src/lib/pdf/order-pdf-template.tsx
 // Template PDF RC 009-00 — Formulario de Orden de Trabajo
 
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { EMPRESA_INFO } from "@/lib/constants";
 import { BRANDING } from "@/lib/branding";
 import { formatCurrency } from "@/lib/utils";
 import type { Currency } from "@/lib/types/database";
+
+interface CompanyInfo {
+  nombre: string;
+  cuit?: string | null;
+  direccion?: string | null;
+  ciudad?: string | null;
+  telefono?: string | null;
+  email?: string | null;
+  logo_url?: string | null;
+  logo_use_in_pdfs?: boolean;
+}
 
 const S = StyleSheet.create({
   page: { fontFamily: "Helvetica", fontSize: 8, padding: 30, color: "#0F172A" },
@@ -74,6 +85,9 @@ const S = StyleSheet.create({
   // Page footer
   pageFooter: { position: "absolute", bottom: 18, left: 30, right: 30, borderTopWidth: 1, borderTopColor: "#E2E8F0", paddingTop: 4, flexDirection: "row", justifyContent: "space-between" },
   footerText: { fontSize: 6.5, color: "#94A3B8" },
+  // Logo: columna izquierda del header, ocupa el alto de los datos de empresa (~44pt)
+  headerLogoCol: { marginRight: 8, justifyContent: "center" },
+  logoImg: { height: 44, objectFit: "contain" },
 });
 
 interface OrderPdfProps {
@@ -81,6 +95,7 @@ interface OrderPdfProps {
     order_number: string; order_type: string; status: string;
     date_in: string; date_due: string | null; currency: string;
     subtotal: number; total: number; general_notes: string | null; created_at: string;
+    orden_compra?: string | null; remito_salida?: string | null;
     clients: {
       business_name: string; tax_id: string | null; contact_name: string | null;
       email: string | null; phone: string | null; client_code?: string | null;
@@ -92,6 +107,8 @@ interface OrderPdfProps {
     additional_observation: string | null; unit_price: number; total_price: number;
     is_remitted?: boolean; is_invoiced?: boolean;
     origen_abastecimiento?: string | null;
+    modelo?: string | null; marca?: string | null;
+    medida?: string | null; unidad_medida?: string | null;
     products: { code: string | null; name: string; brand: string | null; } | null;
   }>;
 }
@@ -101,7 +118,17 @@ function fmtDate(d: string | null) {
   return format(new Date(d), "dd/MM/yyyy", { locale: es });
 }
 
-export function OrderPdfDocument({ order, items }: OrderPdfProps) {
+export function OrderPdfDocument({ order, items, companyInfo }: OrderPdfProps & { companyInfo?: CompanyInfo | null }) {
+  const co: CompanyInfo = companyInfo ?? {
+    nombre: EMPRESA_INFO.nombre,
+    cuit: EMPRESA_INFO.cuit,
+    direccion: EMPRESA_INFO.direccion,
+    ciudad: EMPRESA_INFO.ciudad,
+    telefono: EMPRESA_INFO.telefono,
+    email: EMPRESA_INFO.email,
+    logo_url: null,
+    logo_use_in_pdfs: false,
+  };
   const currency = order.currency as Currency;
   const isOTS = order.order_type === "OTS";
   const allRemitted = items.length > 0 && items.every((i) => i.is_remitted);
@@ -113,12 +140,25 @@ export function OrderPdfDocument({ order, items }: OrderPdfProps) {
       <Page size="A4" style={S.page} orientation="landscape">
         {/* Header */}
         <View style={S.header}>
-          <View style={S.headerLeft}>
-            <Text style={S.companyName}>{EMPRESA_INFO.nombre}</Text>
-            <Text style={S.companyInfo}>{EMPRESA_INFO.direccion} — {EMPRESA_INFO.ciudad}</Text>
-            <Text style={S.companyInfo}>{EMPRESA_INFO.telefono} · {EMPRESA_INFO.email}</Text>
-            <Text style={S.companyInfo}>CUIT: {EMPRESA_INFO.cuit}</Text>
+          {/* Izquierda: [logo opcional] + datos empresa */}
+          <View style={[S.headerLeft, { flexDirection: "row", alignItems: "flex-start" }]}>
+            {co.logo_use_in_pdfs && co.logo_url && (
+              <View style={S.headerLogoCol}>
+                <Image src={co.logo_url} style={S.logoImg} />
+              </View>
+            )}
+            <View>
+              <Text style={S.companyName}>{co.nombre}</Text>
+              {(co.direccion || co.ciudad) && (
+                <Text style={S.companyInfo}>{[co.direccion, co.ciudad].filter(Boolean).join(" — ")}</Text>
+              )}
+              {(co.telefono || co.email) && (
+                <Text style={S.companyInfo}>{[co.telefono, co.email].filter(Boolean).join(" · ")}</Text>
+              )}
+              {co.cuit && <Text style={S.companyInfo}>CUIT: {co.cuit}</Text>}
+            </View>
           </View>
+          {/* Derecha: siempre RC 009-00 + Vigencia */}
           <View style={S.headerRight}>
             <Text style={S.docCode}>RC 009-00</Text>
             <Text style={S.docVigencia}>Vigencia: {today}</Text>
@@ -145,11 +185,11 @@ export function OrderPdfDocument({ order, items }: OrderPdfProps) {
           </View>
           <View style={S.infoBox}>
             <Text style={S.infoLabel}>OC N°</Text>
-            <Text style={S.infoValue}>—</Text>
+            <Text style={S.infoValue}>{order.orden_compra || "—"}</Text>
           </View>
           <View style={S.infoBox}>
             <Text style={S.infoLabel}>Remito Salida N°</Text>
-            <Text style={S.infoValue}>—</Text>
+            <Text style={S.infoValue}>{order.remito_salida || "—"}</Text>
           </View>
           <View style={S.infoBox}>
             <Text style={S.infoLabel}>Moneda</Text>
@@ -182,7 +222,11 @@ export function OrderPdfDocument({ order, items }: OrderPdfProps) {
                 <Text style={[S.td, S.cCant]}>{item.quantity}</Text>
                 <Text style={[S.td, S.cDesc]}>
                   {item.products?.name ?? item.custom_description ?? "—"}
+                  {item.marca ? `\nMarca: ${item.marca}` : ""}
+                  {item.modelo ? `\nModelo: ${item.modelo}` : ""}
                   {item.serial_number ? `\nSerie: ${item.serial_number}` : ""}
+                  {item.equipment_number ? `\nTAG: ${item.equipment_number}` : ""}
+                  {item.medida ? `\nMedida: ${item.medida}${item.unidad_medida ? ` ${item.unidad_medida}` : ""}` : ""}
                 </Text>
                 <Text style={[S.td, S.cCodSas]}>{item.products?.code ?? "—"}</Text>
                 <Text style={[S.td, S.cCodCliente]}>{order.clients?.client_code ?? "—"}</Text>
