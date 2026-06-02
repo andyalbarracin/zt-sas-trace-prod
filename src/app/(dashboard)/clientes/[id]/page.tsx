@@ -21,7 +21,7 @@ export default async function ClientDetailPage({
   const [{ data: clientRaw }, { data: ordersRaw }] = await Promise.all([
     supabase
       .from("clients")
-      .select("*")
+      .select("id, business_name, client_code, tax_id, contact_name, email, phone, address, city, notes, is_active, created_at")
       .eq("id", id)
       .single(),
     supabase

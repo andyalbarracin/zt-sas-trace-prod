@@ -25,7 +25,7 @@ export default async function ConfiguracionPage() {
   const sb = supabase as any;
 
   const [{ data: settingsRaw }, { data: usersRaw }] = await Promise.all([
-    sb.from("company_settings").select("*").eq("id", 1).single(),
+    sb.from("company_settings").select("id, nombre, cuit, direccion, ciudad, telefono, email, web, logo_url, logo_use_in_pdfs, updated_at, updated_by").eq("id", 1).single(),
     supabase.from("profiles").select("id, full_name, email, role, created_at").order("full_name"),
   ]);
 

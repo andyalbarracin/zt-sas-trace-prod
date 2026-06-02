@@ -7,10 +7,29 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { OrderPdfDocument } from "@/lib/pdf/order-pdf-template";
 import React from "react";
 
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(ip: string, maxRequests = 10, windowMs = 60000): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + windowMs });
+    return true;
+  }
+  if (entry.count >= maxRequests) return false;
+  entry.count++;
+  return true;
+}
+
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  if (!checkRateLimit(ip)) {
+    return new NextResponse("Demasiadas solicitudes", { status: 429 });
+  }
+
   const { id } = await params;
   const supabase = await createClient();
 
@@ -33,7 +52,7 @@ export async function GET(
       modelo, marca, medida, unidad_medida,
       products(code, name, brand)
     `).eq("work_order_id", id).order("item_number"),
-    sb.from("company_settings").select("*").eq("id", 1).single(),
+    sb.from("company_settings").select("id, nombre, cuit, direccion, ciudad, telefono, email, web, logo_url, logo_use_in_pdfs, updated_at").eq("id", 1).single(),
   ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

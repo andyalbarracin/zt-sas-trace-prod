@@ -24,7 +24,8 @@ export default async function OrdenesPage({
         work_order_items(is_quoted, is_remitted, is_delivered, is_invoiced, status, serial_number, custom_description, origen_abastecimiento, total_price_ars, marca, materiales_caras, materiales_orings, additional_observation)
       `)
       .is("deleted_at", null)
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .limit(500),
     supabase
       .from("clients")
       .select("id, business_name")

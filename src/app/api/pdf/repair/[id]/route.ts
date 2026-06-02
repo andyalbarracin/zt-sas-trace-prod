@@ -7,10 +7,29 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { RepairPdfDocument } from "@/lib/pdf/repair-pdf-template";
 import React from "react";
 
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(ip: string, maxRequests = 10, windowMs = 60000): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + windowMs });
+    return true;
+  }
+  if (entry.count >= maxRequests) return false;
+  entry.count++;
+  return true;
+}
+
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  if (!checkRateLimit(ip)) {
+    return new NextResponse("Demasiadas solicitudes", { status: 429 });
+  }
+
   const { id } = await params;
   const supabase = await createClient();
 
@@ -30,7 +49,7 @@ export async function GET(
       marca, materiales_caras, materiales_orings, repair_required, modelo,
       products(code, name, brand, model)
     `).eq("work_order_id", id).eq("repair_required", true).order("item_number"),
-    sb.from("company_settings").select("*").eq("id", 1).single(),
+    sb.from("company_settings").select("id, nombre, cuit, direccion, ciudad, telefono, email, web, logo_url, logo_use_in_pdfs, updated_at").eq("id", 1).single(),
   ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
