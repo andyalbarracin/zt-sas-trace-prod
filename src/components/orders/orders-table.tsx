@@ -34,13 +34,17 @@ interface ItemSummary {
   is_invoiced: boolean;
   status: string;
   serial_number: string | null;
+  equipment_number: string | null;
   custom_description: string | null;
+  modelo: string | null;
+  orden_compra_item: string | null;
   origen_abastecimiento: string | null;
   total_price_ars: number;
   marca: string | null;
   materiales_caras: string | null;
   materiales_orings: string | null;
   additional_observation: string | null;
+  products: { name: string } | null;
 }
 
 interface OrderRow {
@@ -54,6 +58,8 @@ interface OrderRow {
   total: number;
   branch_id: string | null;
   general_notes: string | null;
+  remito_salida: string | null;
+  orden_compra: string | null;
   clients: { id: string; business_name: string; client_code: string | null } | null;
   work_order_items: ItemSummary[];
 }
@@ -64,7 +70,7 @@ interface OrdersTableProps {
   initialSearch?: string;
 }
 
-// Custom global filter — searches across order, client and all item fields
+// Custom global filter — universal search across all order, client, and item fields
 const globalFilterFn: FilterFn<OrderRow> = (row, _columnId, filterValue: string) => {
   if (!filterValue) return true;
   const search = filterValue.toLowerCase();
@@ -73,6 +79,8 @@ const globalFilterFn: FilterFn<OrderRow> = (row, _columnId, filterValue: string)
   // Order-level fields
   if (r.order_number.toLowerCase().includes(search)) return true;
   if (r.general_notes?.toLowerCase().includes(search)) return true;
+  if (r.remito_salida?.toLowerCase().includes(search)) return true;
+  if (r.orden_compra?.toLowerCase().includes(search)) return true;
   if (ORDER_STATUS_LABELS[r.status as OrderStatus]?.toLowerCase().includes(search)) return true;
 
   // Client fields
@@ -83,12 +91,16 @@ const globalFilterFn: FilterFn<OrderRow> = (row, _columnId, filterValue: string)
   return (r.work_order_items ?? []).some(
     (item) =>
       item.serial_number?.toLowerCase().includes(search) ||
+      item.equipment_number?.toLowerCase().includes(search) ||
       item.custom_description?.toLowerCase().includes(search) ||
+      item.modelo?.toLowerCase().includes(search) ||
+      item.orden_compra_item?.toLowerCase().includes(search) ||
       item.origen_abastecimiento?.toLowerCase().includes(search) ||
       item.marca?.toLowerCase().includes(search) ||
       item.materiales_caras?.toLowerCase().includes(search) ||
       item.materiales_orings?.toLowerCase().includes(search) ||
-      item.additional_observation?.toLowerCase().includes(search)
+      item.additional_observation?.toLowerCase().includes(search) ||
+      item.products?.name?.toLowerCase().includes(search)
   );
 };
 
@@ -315,7 +327,7 @@ export function OrdersTable({ initialOrders, clients, initialSearch = "" }: Orde
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-(--sas-text-muted)" />
             <Input
-              placeholder="Buscar por orden, cliente, serie..."
+              placeholder="Buscar orden, cliente, serie, equipo/TAG, remito, OC, modelo..."
               value={globalFilter}
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="pl-9 h-9"

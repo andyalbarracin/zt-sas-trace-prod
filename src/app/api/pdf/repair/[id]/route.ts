@@ -41,7 +41,7 @@ export async function GET(
 
   const [{ data: orderRaw }, { data: itemsRaw }, { data: settingsRaw }] = await Promise.all([
     sb.from("work_orders").select(`
-      id, order_number, order_type, date_in, currency,
+      id, order_number, order_type, date_in, currency, remito_salida,
       clients(business_name, client_code)
     `).eq("id", id).single(),
     sb.from("work_order_items").select(`

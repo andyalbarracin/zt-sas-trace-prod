@@ -47,7 +47,7 @@ const COMPONENTS = [
 const S = StyleSheet.create({
   page: { fontFamily: "Helvetica", fontSize: 8, padding: 28, color: "#0F172A" },
 
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10, paddingBottom: 8, borderBottomWidth: 2, borderBottomColor: "#0B2447" },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6, paddingBottom: 6, borderBottomWidth: 2, borderBottomColor: "#0B2447" },
   companyName: { fontSize: 13, fontFamily: "Helvetica-Bold", color: "#0B2447", marginBottom: 2 },
   companyInfo: { fontSize: 6.5, color: "#64748B", marginTop: 1 },
   docCode: { fontSize: 9, fontFamily: "Helvetica-Bold", color: "#0B2447" },
@@ -55,21 +55,21 @@ const S = StyleSheet.create({
   docVigencia: { fontSize: 6.5, color: "#64748B", marginTop: 1 },
 
   // Title bar
-  titleBar: { backgroundColor: "#0B2447", padding: "5 10", marginBottom: 10, borderRadius: 3 },
+  titleBar: { backgroundColor: "#0B2447", padding: "4 10", marginBottom: 6, borderRadius: 3 },
   titleBarText: { fontSize: 11, fontFamily: "Helvetica-Bold", color: "#FFFFFF" },
 
   // Data grid
-  dataGrid: { flexDirection: "row", flexWrap: "wrap", gap: 5, marginBottom: 10 },
-  dataCell: { width: "31%", borderWidth: 1, borderColor: "#E2E8F0", borderRadius: 2, padding: "4 6" },
-  dataCellWide: { width: "64%", borderWidth: 1, borderColor: "#E2E8F0", borderRadius: 2, padding: "4 6" },
+  dataGrid: { flexDirection: "row", flexWrap: "wrap", gap: 4, marginBottom: 6 },
+  dataCell: { width: "31%", borderWidth: 1, borderColor: "#E2E8F0", borderRadius: 2, padding: "3 6" },
+  dataCellWide: { width: "64%", borderWidth: 1, borderColor: "#E2E8F0", borderRadius: 2, padding: "3 6" },
   dataLabel: { fontSize: 6, color: "#94A3B8", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 },
   dataValue: { fontSize: 8, fontFamily: "Helvetica-Bold", color: "#0F172A" },
 
   // Components table
-  sectionTitle: { fontSize: 7.5, fontFamily: "Helvetica-Bold", color: "#0B2447", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4, marginTop: 8 },
-  tableWrap: { borderWidth: 1, borderColor: "#CBD5E1", borderRadius: 3, overflow: "hidden", marginBottom: 10 },
-  tableHead: { flexDirection: "row", backgroundColor: "#0B2447", padding: "4 4" },
-  tableRow: { flexDirection: "row", borderTopWidth: 1, borderTopColor: "#E2E8F0", padding: "3.5 4" },
+  sectionTitle: { fontSize: 7.5, fontFamily: "Helvetica-Bold", color: "#0B2447", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 3, marginTop: 4 },
+  tableWrap: { borderWidth: 1, borderColor: "#CBD5E1", borderRadius: 3, overflow: "hidden", marginBottom: 6 },
+  tableHead: { flexDirection: "row", backgroundColor: "#0B2447", padding: "3 4" },
+  tableRow: { flexDirection: "row", borderTopWidth: 1, borderTopColor: "#E2E8F0", padding: "2.5 4" },
   tableRowAlt: { backgroundColor: "#F8FAFC" },
   th: { color: "#FFFFFF", fontSize: 6.5, fontFamily: "Helvetica-Bold", textTransform: "uppercase" },
   td: { fontSize: 7.5, color: "#0F172A" },
@@ -79,19 +79,20 @@ const S = StyleSheet.create({
   cNuevo: { width: 45, textAlign: "center" },
   cCant: { width: 35, textAlign: "center" },
 
-  // Pressure tests footer
-  testsBox: { flexDirection: "row", gap: 6, marginBottom: 8 },
-  testCard: { flex: 1, borderWidth: 1, borderColor: "#E2E8F0", borderRadius: 3, padding: "5 8" },
+  // Pressure tests
+  testsBox: { flexDirection: "row", gap: 6, marginBottom: 5 },
+  testCard: { flex: 1, borderWidth: 1, borderColor: "#E2E8F0", borderRadius: 3, padding: "4 8" },
   testLabel: { fontSize: 7, fontFamily: "Helvetica-Bold", color: "#0B2447", marginBottom: 2 },
-  testDetail: { fontSize: 7, color: "#475569", marginBottom: 4 },
+  testDetail: { fontSize: 7, color: "#475569", marginBottom: 3 },
   testAprobado: { flexDirection: "row", alignItems: "center", gap: 4 },
   testCheckbox: { fontSize: 9, color: "#0B2447" },
   testCheckLabel: { fontSize: 7.5 },
 
-  // Notes area
-  notesArea: { flexDirection: "row", gap: 6, marginBottom: 8 },
-  notesBox: { flex: 1, borderWidth: 1, borderColor: "#E2E8F0", borderRadius: 3, padding: "5 8", minHeight: 40 },
-  notesLabel: { fontSize: 6.5, color: "#94A3B8", textTransform: "uppercase", marginBottom: 3 },
+  // Notes — sin caja, solo título y línea para escritura manual
+  notesArea: { flexDirection: "row", gap: 10, marginBottom: 6 },
+  notesBlock: { flex: 1 },
+  notesLabel: { fontSize: 6.5, color: "#94A3B8", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 },
+  notesLine: { borderBottomWidth: 1, borderBottomColor: "#CBD5E1", marginBottom: 6 },
 
   pageFooter: { position: "absolute", bottom: 16, left: 28, right: 28, borderTopWidth: 1, borderTopColor: "#E2E8F0", paddingTop: 4, flexDirection: "row", justifyContent: "space-between" },
   footerText: { fontSize: 6, color: "#94A3B8" },
@@ -102,6 +103,7 @@ export interface RepairItem {
   quantity: number;
   custom_description: string | null;
   serial_number: string | null;
+  modelo: string | null;
   marca: string | null;
   materiales_caras: string | null;
   materiales_orings: string | null;
@@ -113,6 +115,7 @@ export interface RepairPdfProps {
     order_number: string;
     date_in: string;
     currency: string;
+    remito_salida?: string | null;
     clients: { business_name: string; client_code?: string | null; } | null;
   };
   items: RepairItem[];
@@ -126,7 +129,7 @@ function fmtDate(d: string | null) {
 function ItemPage({ order, item, co }: { order: RepairPdfProps["order"]; item: RepairItem; co: CompanyInfo }) {
   const nombre = item.products?.name ?? item.custom_description ?? "Sin descripción";
   const marca = item.marca ?? item.products?.brand ?? "—";
-  const modelo = item.products?.model ?? "—";
+  const modelo = item.modelo ?? item.products?.model ?? "—";
   const materiales = [item.materiales_caras, item.materiales_orings].filter(Boolean).join(" / ") || "—";
   const today = format(new Date(), "dd/MM/yyyy", { locale: es });
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -198,7 +201,7 @@ function ItemPage({ order, item, co }: { order: RepairPdfProps["order"]; item: R
         </View>
         <View style={S.dataCell}>
           <Text style={S.dataLabel}>Salida N°</Text>
-          <Text style={S.dataValue}> </Text>
+          <Text style={S.dataValue}>{order.remito_salida ?? "—"}</Text>
         </View>
         <View style={S.dataCell}>
           <Text style={S.dataLabel}>OT N°</Text>
@@ -244,7 +247,7 @@ function ItemPage({ order, item, co }: { order: RepairPdfProps["order"]; item: R
       </View>
 
       {/* Pressure tests */}
-      <View style={S.testsBox} wrap={false}>
+      <View style={S.testsBox}>
         <View style={S.testCard}>
           <Text style={S.testLabel}>PRUEBA NEUMÁTICA</Text>
           <Text style={S.testDetail}>25 a 30 (indicar) PSI / 8 MIN</Text>
@@ -263,15 +266,17 @@ function ItemPage({ order, item, co }: { order: RepairPdfProps["order"]; item: R
         </View>
       </View>
 
-      {/* Notes — wrap={false} fuerza que ambos cuadros se muevan a la próxima hoja si no caben */}
-      <View style={S.notesArea} wrap={false}>
-        <View style={S.notesBox}>
+      {/* Notes — solo títulos con líneas para escritura manual */}
+      <View style={S.notesArea}>
+        <View style={S.notesBlock}>
           <Text style={S.notesLabel}>Observaciones</Text>
-          <Text> </Text>
+          <View style={S.notesLine} />
+          <View style={S.notesLine} />
         </View>
-        <View style={S.notesBox}>
+        <View style={S.notesBlock}>
           <Text style={S.notesLabel}>Notas adicionales</Text>
-          <Text> </Text>
+          <View style={S.notesLine} />
+          <View style={S.notesLine} />
         </View>
       </View>
 

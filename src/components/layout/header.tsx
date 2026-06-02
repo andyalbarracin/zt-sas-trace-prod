@@ -135,7 +135,13 @@ export function Header({ notifications }: HeaderProps) {
           className="flex-1 bg-transparent border-none outline-none text-sm text-(--sas-text) placeholder:text-(--sas-text-muted) min-w-0"
         />
         {shortcutHint && (
-          <kbd className="text-[10px] bg-white border border-(--sas-border) rounded px-1.5 py-0.5 text-(--sas-text-muted) font-sans shrink-0">{shortcutHint}</kbd>
+          <button
+            type="submit"
+            className="text-[10px] bg-white border border-(--sas-border) rounded px-1.5 py-0.5 text-(--sas-text-muted) font-sans shrink-0 hover:bg-slate-100 hover:text-(--sas-text) transition-colors cursor-pointer"
+            title="Buscar"
+          >
+            {shortcutHint}
+          </button>
         )}
       </form>
 

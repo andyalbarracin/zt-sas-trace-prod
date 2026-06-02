@@ -19,9 +19,9 @@ export default async function OrdenesPage({
       .from("work_orders")
       .select(`
         id, order_number, order_type, status, date_in, date_due,
-        currency, subtotal, total, branch_id, general_notes, created_at,
+        currency, subtotal, total, branch_id, general_notes, remito_salida, orden_compra, created_at,
         clients(id, business_name, client_code),
-        work_order_items(is_quoted, is_remitted, is_delivered, is_invoiced, status, serial_number, custom_description, origen_abastecimiento, total_price_ars, marca, materiales_caras, materiales_orings, additional_observation)
+        work_order_items(is_quoted, is_remitted, is_delivered, is_invoiced, status, serial_number, equipment_number, custom_description, modelo, orden_compra_item, origen_abastecimiento, total_price_ars, marca, materiales_caras, materiales_orings, additional_observation, products(name))
       `)
       .is("deleted_at", null)
       .order("created_at", { ascending: false })
