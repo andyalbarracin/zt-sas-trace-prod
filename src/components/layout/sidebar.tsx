@@ -77,7 +77,7 @@ export function Sidebar({ profile }: SidebarProps) {
         <Activity className="w-7 h-7 text-sas-light shrink-0" />
         {!collapsed && (
           <div>
-            <span className="font-bold text-lg tracking-tight">Zaire Trace</span>
+            <span className="font-bold text-lg tracking-tight">SAS Trace</span>
             <p className="text-[10px] text-sas-light opacity-70 leading-tight">
               Sistema de Trazabilidad
             </p>
