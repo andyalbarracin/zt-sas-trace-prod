@@ -13,7 +13,6 @@ import {
   History,
   BarChart3,
   Settings,
-  Activity,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -74,7 +73,8 @@ export function Sidebar({ profile }: SidebarProps) {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-sas-navy-mid">
-        <Activity className="w-7 h-7 text-sas-light shrink-0" />
+        {/* Logo: reemplazar ruta si cambia el asset */}
+        <img src="/branding/SAS-full-white.png" alt="SAS Trace" className="w-7 h-7 object-contain shrink-0" />
         {!collapsed && (
           <div>
             <span className="font-bold text-lg tracking-tight">SAS Trace</span>

@@ -3,7 +3,7 @@
 
 export const BRANDING = {
   companyName: "Empresa Demo S.A.",
-  systemName: "Zaire Trace",
+  systemName: "SAS Trace",
   subtitle: "Sistema de Trazabilidad",
   logo: "/branding/logo.png",
   logoWhite: "/branding/logo-white.png",

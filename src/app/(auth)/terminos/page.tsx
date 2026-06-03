@@ -1,12 +1,12 @@
 // page.tsx — src/app/(auth)/terminos/page.tsx — 2026-05-20
-// Página de Términos y Condiciones y Política de Privacidad de Zaire Trace
+// Página de Términos y Condiciones y Política de Privacidad de SAS Trace
 
 import Link from "next/link";
-import { Activity, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 export const metadata = {
-  title: "Términos y Condiciones — Zaire Trace",
-  description: "Términos de uso y política de privacidad de Zaire Trace",
+  title: "Términos y Condiciones — SAS Trace",
+  description: "Términos de uso y política de privacidad de SAS Trace",
 };
 
 export default function TerminosPage() {
@@ -16,8 +16,8 @@ export default function TerminosPage() {
       <header className="bg-sas-navy sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Activity className="w-5 h-5 text-white" />
-            <span className="text-white font-bold tracking-tight">Zaire Trace</span>
+            <img src="/branding/SAS-full-white.png" alt="SAS Trace" className="h-5 w-auto object-contain" />
+            <span className="text-white font-bold tracking-tight">SAS Trace</span>
           </div>
           <Link
             href="/login"
@@ -40,7 +40,7 @@ export default function TerminosPage() {
             <div>
               <h2 className="text-lg font-semibold text-gray-900 mb-2">1. Aceptación de los términos</h2>
               <p>
-                Al acceder y utilizar Zaire Trace ("el Sistema"), usted acepta quedar vinculado por estos Términos y
+                Al acceder y utilizar SAS Trace ("el Sistema"), usted acepta quedar vinculado por estos Términos y
                 Condiciones de Uso. Si no está de acuerdo con alguna parte de estos términos, no podrá acceder al
                 Sistema. El uso continuo del Sistema después de la publicación de cambios constituye aceptación de
                 los nuevos términos.
@@ -50,7 +50,7 @@ export default function TerminosPage() {
             <div>
               <h2 className="text-lg font-semibold text-gray-900 mb-2">2. Descripción del servicio</h2>
               <p>
-                Zaire Trace es un sistema web de gestión y trazabilidad de órdenes de trabajo desarrollado
+                SAS Trace es un sistema web de gestión y trazabilidad de órdenes de trabajo desarrollado
                 exclusivamente para uso interno de <strong>Empresa Demo S.A.</strong> y sus usuarios autorizados.
                 El Sistema permite registrar, numerar, seguir y auditar órdenes de trabajo (OT y OTS) conforme
                 a los requerimientos del sistema de gestión de calidad ISO 9001:2015.

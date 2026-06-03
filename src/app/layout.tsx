@@ -12,7 +12,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Zaire Trace — Sistema de Trazabilidad",
+  title: "SAS Trace — Sistema de Trazabilidad",
   description: "Gestión y trazabilidad de órdenes de trabajo",
 };
 

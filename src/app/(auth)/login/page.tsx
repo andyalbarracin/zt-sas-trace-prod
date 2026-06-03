@@ -9,7 +9,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
 import {
-  Activity,
   Loader2,
   ChevronLeft,
   ChevronRight,
@@ -159,10 +158,10 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
-            <Activity className="w-6 h-6 text-white" />
+            <img src="/branding/SAS-full-white.png" alt="SAS Trace" className="w-6 h-6 object-contain" />
           </div>
           <div>
-            <span className="text-white font-bold text-xl tracking-tight">Zaire Trace</span>
+            <span className="text-white font-bold text-xl tracking-tight">SAS Trace</span>
             <span className="block text-white/40 text-xs">Empresa Demo S.A.</span>
           </div>
         </div>
@@ -241,8 +240,8 @@ export default function LoginPage() {
       <div className="flex-1 lg:w-[40%] flex flex-col min-h-screen bg-[#F7F7F7]">
         {/* Mobile logo */}
         <div className="lg:hidden flex items-center gap-2 p-6 border-b border-gray-200 bg-sas-navy">
-          <Activity className="w-5 h-5 text-white" />
-          <span className="text-white font-bold">Zaire Trace</span>
+          <img src="/branding/SAS-full-white.png" alt="SAS Trace" className="h-5 w-auto object-contain" />
+          <span className="text-white font-bold">SAS Trace</span>
         </div>
 
         {/* Form area */}
@@ -255,7 +254,7 @@ export default function LoginPage() {
             <p className="text-sm text-gray-500">
               {isRegister
                 ? "Completá tus datos para registrarte"
-                : "Ingresá a tu cuenta de Zaire Trace"}
+                : "Ingresá a tu cuenta de SAS Trace"}
             </p>
           </div>
 

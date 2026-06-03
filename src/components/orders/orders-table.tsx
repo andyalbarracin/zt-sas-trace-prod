@@ -287,7 +287,7 @@ export function OrdersTable({ initialOrders, clients, initialSearch = "" }: Orde
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Órdenes");
-    XLSX.writeFile(wb, `Zaire_Trace_Ordenes_${new Date().toISOString().split("T")[0]}.xlsx`);
+    XLSX.writeFile(wb, `SAS_Trace_Ordenes_${new Date().toISOString().split("T")[0]}.xlsx`);
   }
 
   function exportCSV() {
@@ -312,7 +312,7 @@ export function OrdersTable({ initialOrders, clients, initialSearch = "" }: Orde
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `Zaire_Trace_Ordenes_${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `SAS_Trace_Ordenes_${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
