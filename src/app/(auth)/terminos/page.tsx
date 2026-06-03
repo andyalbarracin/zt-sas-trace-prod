@@ -5,6 +5,8 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createServiceClient } from "@/lib/supabase/service";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Términos y Condiciones — SAS Trace",
   description: "Términos de uso y política de privacidad de SAS Trace",
