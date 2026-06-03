@@ -31,7 +31,7 @@ const SLIDES = [
     icon: ClipboardList,
     tag: "Trazabilidad completa",
     title: "Cada orden, bajo control",
-    body: "Registrá, numerá y seguí todas tus órdenes de trabajo desde el ingreso hasta la entrega. Cumplimiento ISO 9001:2015 garantizado.",
+    body: "Registrá, numerá y seguí todas tus órdenes de trabajo desde el ingreso hasta la entrega. Trazabilidad completa de cada operación.",
     gradient: "from-[#0B2447] via-[#0d2d58] to-[#19376D]",
     accent: "#576CBC",
   },
@@ -82,6 +82,14 @@ export default function LoginPage() {
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [companyName, setCompanyName] = useState("SAS Supplier");
+
+  useEffect(() => {
+    fetch("/api/company-public")
+      .then((r) => r.json())
+      .then((d) => { if (d?.nombre) setCompanyName(d.nombre); })
+      .catch(() => {});
+  }, []);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   // Auto-advance slides
@@ -162,7 +170,7 @@ export default function LoginPage() {
           </div>
           <div>
             <span className="text-white font-bold text-xl tracking-tight">SAS Trace</span>
-            <span className="block text-white/40 text-xs">Empresa Demo S.A.</span>
+            <span className="block text-white/40 text-xs">{companyName}</span>
           </div>
         </div>
 
@@ -193,7 +201,7 @@ export default function LoginPage() {
               "Numeración automática OT/OTS",
               "Historial de estados completo",
               "Export Excel y PDF",
-              "Log de auditoría ISO 9001",
+              "Log de auditoría completo",
             ].map((f) => (
               <div key={f} className="flex items-center gap-2 text-sm text-white/50">
                 <ArrowRight className="w-3.5 h-3.5 shrink-0" style={{ color: currentSlide.accent }} />
@@ -453,7 +461,7 @@ export default function LoginPage() {
         {/* Footer con links legales */}
         <div className="px-8 xl:px-14 py-6 border-t border-gray-200">
           <p className="text-xs text-gray-400 text-center">
-            © 2026 Empresa Demo S.A. · ISO 9001:2015 ·{" "}
+            © 2026 {companyName} ·{" "}
             <Link href="/terminos" className="hover:text-gray-600 underline underline-offset-2">
               Términos y Condiciones
             </Link>

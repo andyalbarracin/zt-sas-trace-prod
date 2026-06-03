@@ -266,7 +266,7 @@ const SECTIONS: Section[] = [
       {
         title: "Las órdenes no se borran",
         body: "Ninguna orden se elimina físicamente del sistema. Solo pueden ser canceladas, y el registro permanece con su historial completo intacto.",
-        alert: { type: "success", text: "Esto garantiza la integridad del registro para auditorías ISO 9001:2015." },
+        alert: { type: "success", text: "Esto garantiza la integridad del registro para auditorías internas." },
       },
       {
         title: "Huecos en la numeración",
