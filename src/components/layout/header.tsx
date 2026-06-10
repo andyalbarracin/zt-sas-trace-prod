@@ -29,10 +29,11 @@ const ROUTE_LABELS: Record<string, string> = {
 };
 
 function getDaysUntilDue(dateStr: string): number {
-  const due = new Date(dateStr);
+  // Parseamos la fecha como medianoche LOCAL para evitar el corrimiento por zona horaria (UTC)
+  const [y, m, d] = dateStr.slice(0, 10).split("-").map(Number);
+  const due = new Date(y, m - 1, d);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  due.setHours(0, 0, 0, 0);
   return Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
 
